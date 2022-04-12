@@ -9,7 +9,7 @@ public class JFrameChat extends JFrame
 {
 
 	/*------------------------------------------------------------------*\
-	|*							Constructeurs							*|
+	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
 	public JFrameChat(JComponent jcomponent, boolean isFullScreen, String title)
@@ -34,11 +34,11 @@ public class JFrameChat extends JFrame
 	}
 
 	/*------------------------------------------------------------------*\
-	|*							Methodes Public							*|
+	|*							Public Methodes							*|
 	\*------------------------------------------------------------------*/
 
 	/*------------------------------------------------------------------*\
-	|*							Methodes Private						*|
+	|*							Private Methods							*|
 	\*------------------------------------------------------------------*/
 
 	private void geometry()
@@ -72,7 +72,7 @@ public class JFrameChat extends JFrame
 	}
 
 	/*------------------------------------------------------------------*\
-	|*							Attributs Private						*|
+	|*							Private Attributes						*|
 	\*------------------------------------------------------------------*/
 
 	// Inputs

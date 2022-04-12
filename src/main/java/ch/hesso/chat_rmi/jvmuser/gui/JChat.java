@@ -49,8 +49,8 @@ public class JChat extends Box
 
     public void updateGUI(String message)
     {
-        insertTextCustomized(this.jDisplayRemote, message, JMain.FONT_TEXT_FIELD_SIZE, Color.WHITE, NICE_BLUE);
-        insertTextCustomized(this.jDisplayLocal, "", JMain.FONT_TEXT_FIELD_SIZE, Color.WHITE, NICE_ORANGE);
+        insertTextCustomized(this.jDisplayRemote, message, TEXT_CHAT_SMALL, Color.WHITE, NICE_BLUE, false);
+        insertTextCustomized(this.jDisplayLocal, "", TEXT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, false);
     }
 
 	/*------------------------------------------------------------------*\
@@ -74,18 +74,17 @@ public class JChat extends Box
 
     private void displayFirstMessage(String firstMessage)
     {
-        insertTextCustomized(this.jDisplayRemote, firstMessage, JMain.FONT_TEXT_FIELD_SIZE + 5, NICE_BLUE, Color.WHITE);
-        insertTextCustomized(this.jDisplayLocal, "", JMain.FONT_TEXT_FIELD_SIZE + 5, Color.WHITE, NICE_ORANGE);
+        insertTextCustomized(this.jDisplayRemote, firstMessage, TEXT_CHAT_BIG, NICE_BLUE, Color.WHITE, true);
+        insertTextCustomized(this.jDisplayLocal, "", TEXT_CHAT_BIG, Color.WHITE, NICE_ORANGE, true);
     }
 
-    private void insertTextCustomized(JTextPane jTextPane, String message, int fontSize, Color fontColor, Color backColor)
+    private void insertTextCustomized(JTextPane jTextPane, String message, int fontSize, Color fontColor, Color backColor, boolean underlined)
     {
         SimpleAttributeSet set = new SimpleAttributeSet();
         StyleConstants.setFontSize(set, fontSize);
         StyleConstants.setForeground(set, fontColor);
         StyleConstants.setBackground(set, backColor);
-        StyleConstants.setLeftIndent(set, 25);
-        StyleConstants.setRightIndent(set, 25);
+        StyleConstants.setUnderline(set, underlined);
 
         StyledDocument doc = jTextPane.getStyledDocument();
         try
@@ -119,7 +118,6 @@ public class JChat extends Box
         boxH.add(this.jMessage);
         boxH.add(this.jSend);
 
-
         add(this.jScrollPane);
         add(boxH);
     }
@@ -137,8 +135,8 @@ public class JChat extends Box
 
                     // Sending message with chatRemote
                     this.chatRemote.setMessage(this.userLocal, message);
-                    insertTextCustomized(this.jDisplayRemote, "", JMain.FONT_TEXT_FIELD_SIZE, Color.WHITE, NICE_BLUE);
-                    insertTextCustomized(this.jDisplayLocal, message, JMain.FONT_TEXT_FIELD_SIZE, Color.WHITE, NICE_ORANGE);
+                    insertTextCustomized(this.jDisplayRemote, "", TEXT_CHAT_SMALL, Color.WHITE, NICE_BLUE, false);
+                    insertTextCustomized(this.jDisplayLocal, message, TEXT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, false);
 
                     // Resetting the message area
                     this.jMessage.setText("");
@@ -254,6 +252,9 @@ public class JChat extends Box
     /*------------------------------*\
     |*			  Static		   	*|
     \*------------------------------*/
+
+    private static final int TEXT_CHAT_SMALL = 25;
+    private static final int TEXT_CHAT_BIG = 28;
 
     private static final Color NICE_BLUE = new Color(81, 160, 213);
     private static final Color NICE_ORANGE = new Color(255, 149, 0);

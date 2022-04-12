@@ -138,7 +138,7 @@ public class ChatController
 
                     if (chatRemote.askConnection(this.userLocal)) // [CONNECTION ACCEPTED]
                     {
-                        String firstMessage = "The user " + userTo + " has accepted to chat with you !";
+                        String firstMessage = userTo + " has accepted to chat with you !";
 
                         JChat jChat = new JChat(this.userLocal, firstMessage, chatRemote);
                         this.listConnectedUsers.add(new AbstractMap.SimpleEntry<User, JChat>(userTo, jChat));
