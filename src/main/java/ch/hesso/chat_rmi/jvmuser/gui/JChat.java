@@ -178,8 +178,7 @@ public class JChat extends Box
                             disconnectChat();
                             chatController.removeUserInConnectedUsers(source);
 
-                            // just in case, we never know, don't want to lose this piece of code :
-                            //SwingUtilities.getWindowAncestor(source).dispatchEvent(new WindowEvent(SwingUtilities.getWindowAncestor(source), WindowEvent.WINDOW_CLOSING));
+                            // just in case, we never know, don't want to lose this piece of code : SwingUtilities.getWindowAncestor(source).dispatchEvent(new WindowEvent(SwingUtilities.getWindowAncestor(source), WindowEvent.WINDOW_CLOSING));
                         }
                     }
                 });

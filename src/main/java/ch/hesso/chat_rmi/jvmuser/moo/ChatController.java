@@ -54,10 +54,6 @@ public class ChatController
     |*	            RMI	         	*|
     \*------------------------------*/
 
-    /*-------------*\
-    |*	 Server    *|
-    \*-------------*/
-
     public void create(String username) throws MalformedURLException, RemoteException
     {
         // Create the local user and the local chat
@@ -102,10 +98,6 @@ public class ChatController
                     this.listConnectedUsers.remove(entry); // remove disconnecting user from list of connected users
                 });
     }
-
-    /*-------------*\
-    |*	 Client    *|
-    \*-------------*/
 
     public List<User> getListAvailableUsers() throws RemoteException
     {
@@ -168,10 +160,6 @@ public class ChatController
     /*------------------------------*\
     |*	            RMI	         	*|
     \*------------------------------*/
-
-    /*-------------*\
-    |*	 Server    *|
-    \*-------------*/
 
     private void shareChat()
     {
