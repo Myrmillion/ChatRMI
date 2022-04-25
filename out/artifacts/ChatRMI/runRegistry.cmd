@@ -1,0 +1,1 @@
+java -cp ChatRMI.jar -DIS_MONO_PC=true ch.hesso.chat_rmi.jvmregistry.use.UsePCRegistry

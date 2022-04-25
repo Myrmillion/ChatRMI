@@ -30,12 +30,14 @@ public class Registry implements Registry_I
     @Override
     public void addUser(User user) throws RemoteException
     {
+        System.out.println("[Registry] : addUser : " + user);
         listUser.add(user);
     }
 
     @Override
     public void removeUser(User user) throws RemoteException
     {
+        System.out.println("[Registry] : removeUser : " + user);
         listUser.remove(user);
     }
 

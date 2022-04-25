@@ -95,7 +95,7 @@ public class JMain extends Box
 
     private void control()
     {
-        // Create Button
+        // Create (Button)
         jCreate.addActionListener(e ->
         {
             if (!this.jUsername.getText().isEmpty())
@@ -114,8 +114,8 @@ public class JMain extends Box
                 }
                 catch (RemoteException | MalformedURLException ex)
                 {
-                    System.err.println("[JMain] : shareAndUpdateRegistry : fail : " + SettingsRMI.REGISTRY_RMI_URL);
-                    System.err.println("[JMain] : shareAndUpdateRegistry : Please verify that the Registry server is started !");
+                    System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
+                    System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
                     ex.printStackTrace();
 
                     this.jUsername.setEnabled(true);
@@ -131,25 +131,25 @@ public class JMain extends Box
             }
         });
 
-        // List Select
+        // Select Available User (JList<User>)
         jAvailableUsers.addListSelectionListener(e ->
         {
             this.jAskChat.setEnabled(!jAvailableUsers.isSelectionEmpty());
         });
 
-        // Resynchronize Button
+        // Resynchronize (Button)
         jResynchronize.addActionListener(e ->
         {
             updateListModel();
         });
 
-        // Connect Button
+        // Connect (Button)
         jAskChat.addActionListener(e ->
         {
             this.chatController.askConnection(jAvailableUsers.getSelectedValue());
         });
 
-        // To add a listener directly on the Ancestor
+        // Adding a listener to the Ancestor
         addAncestorListener(new AncestorAdapter()
         {
             // Called once the Ancestor is made visible (so we are sure it exists and is instantiated)
@@ -185,43 +185,37 @@ public class JMain extends Box
     {
         // Labels
         this.jLabelUsername.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
-
         this.jLabelChoice.setEnabled(false);
         this.jLabelChoice.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
 
-        // Username
+        // Username (JTextField)
         JComponents.setHeight(this.jUsername, 50);
         JComponents.setWidth(this.jUsername, 400);
-
         this.jUsername.setHorizontalAlignment(SwingConstants.CENTER);
         this.jUsername.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, FONT_TEXT_FIELD_SIZE));
 
-        // Create
+        // Create (Button)
         this.jCreate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_BUTTON_SIZE));
-
         JComponents.setHeight(this.jCreate, 50);
         JComponents.setWidth(this.jCreate, 250);
 
-        // AvailableUsers
+        // AvailableUsers (JList<User>)
         this.jAvailableUsers.setEnabled(false);
         this.jAvailableUsers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.jAvailableUsers.setLayoutOrientation(JList.VERTICAL_WRAP);
         this.jAvailableUsers.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, FONT_TEXT_FIELD_SIZE));
-
         JComponents.setHeight(this.jAvailableUsers, 100);
         JComponents.setWidth(this.jAvailableUsers, 400);
 
-        // Resynchronize
+        // Resynchronize (Button)
         this.jResynchronize.setEnabled(false);
         this.jResynchronize.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_BUTTON_SIZE));
-
         JComponents.setHeight(this.jResynchronize, 50);
         JComponents.setWidth(this.jResynchronize, 250);
 
-        // Connect
+        // Connect (Button)
         this.jAskChat.setEnabled(false);
         this.jAskChat.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_BUTTON_SIZE));
-
         JComponents.setHeight(this.jAskChat, 50);
         JComponents.setWidth(this.jAskChat, 250);
     }

@@ -43,18 +43,17 @@ public class User implements Serializable
     }
 
     @Override
-    public boolean equals(Object object2)
+    public boolean equals(Object obj2)
     {
-        if (object2 instanceof User)
+        if (obj2 instanceof User)
         {
-            return isEquals((User) object2);
+            return isEquals((User) obj2);
         }
         else
         {
             return false;
         }
     }
-
 
     /*------------------------------*\
     |*				Get				*|

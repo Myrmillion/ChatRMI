@@ -12,6 +12,9 @@ import java.rmi.RemoteException;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Singleton
+ */
 public class ChatController
 {
 
@@ -57,14 +60,14 @@ public class ChatController
     public void create(String username) throws MalformedURLException, RemoteException
     {
         // Create the local user and the local chat
-        this.userLocal = new User(username, SettingsRMI.CREATE_RMI_URL(username + (new Date()).getTime())); // time to guarantee unicity if users with same name
+        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username + (new Date()).getTime())); // time guarantee unicity if users with same name
         this.chatLocal = new Chat();
 
         // Share the chatLocal on the local url (RMI)
         shareChat();
 
         // Fetch the registry and add the local user
-        this.registry = (Registry_I) Rmis.connectRemoteObjectSync(SettingsRMI.REGISTRY_RMI_URL);
+        this.registry = (Registry_I) Rmis.connectRemoteObjectSync(SettingsRMI.REGISTRY_RMI_URL, 0, 4);
         this.registry.addUser(this.userLocal);
     }
 

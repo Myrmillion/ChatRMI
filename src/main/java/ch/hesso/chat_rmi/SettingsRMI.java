@@ -1,6 +1,5 @@
 package ch.hesso.chat_rmi;
 
-import ch.hearc.tools.rmi.IpMachines;
 import ch.hearc.tools.rmi.Ports;
 import ch.hearc.tools.rmi.RmiURL;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry;
@@ -79,121 +78,68 @@ import java.net.InetAddress;
  */
 public class SettingsRMI
 {
-	/*------------------------------------------------------------------*\
-	|*							Private Methodes						*|
-	\*------------------------------------------------------------------*/
-
-    // TIME_OUT_MS : experimental
-    //	static
-    //		{
-    //		try
-    //			{
-    //			final long TIME_OUT_MS = 2000;
-    //			System.out.println("[SettingsRMI] : timeout : " + TIME_OUT_MS + "[ms]");
-    //			Rmis.setTimeout(TIME_OUT_MS);
-    //			}
-    //		catch (IOException e)
-    //			{
-    //			e.printStackTrace();
-    //			}
-    //		}
 
 	/*------------------------------*\
 	|*				IP				*|
 	\*------------------------------*/
 
-    /**
-     * <pre>
-     * UsePcHorloge : either/either:
-     * 		-DIP_Secret= ...
-     * 		-DIS_MONO_PC=...
-     * </pre>
-     */
-    private static InetAddress secretIP()
+    private static InetAddress chatIP()
     {
-        // soit on doit se connecter au secret
-        // soit on doit le partager
+        System.out.println("yeye");
         try
         {
-            String ipSecret = System.getProperty("IP_Secret");
+            String ipChat = System.getProperty("IP_Chat");
 
             if (isMonoPc())
             {
                 return ipMonoPC();
             }
-            else if (ipSecret != null)
+            else if (ipChat != null)
             {
-                return InetAddress.getByName(ipSecret);// ip use for remote connection to secret
+                return InetAddress.getByName(ipChat); // ip use for remote connection to secret
             }
             else
             {
-                // ip use for share secret
-                {
-                    //InetAddress thisMachine=InetAddress.getByName("192.168.0.24");		// IP standard, ko si vpn ouvert  	(warning : IP change a chaque session)
-                    //InetAddress thisMachine= InetAddress.getByName("157.26.67.49");		// IP VPN 							(warning : change a chaque session)
-
-                    InetAddress thisMachine = IpMachines.ipLucky();//choose VPN if VPN open
-
-                    String thisIP = thisMachine.getHostAddress();
-                    System.setProperty("java.rmi.server.hostname", thisIP);// usefull in linux
-
-                    return thisMachine;// choose VPN if VPN open
-                }
+                System.err.println("\n[SettingsRMI] : chatIP : if -DIS_MONO_PC=false, you MUST set -DIP_Chat !");
+                System.exit(0); // 0: ok, -1: ko
+                return null;
             }
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            System.err.println("[SettingsRMI] : secretIP");
-            System.exit(-1); // 0 normal, -1 anormal
+            System.err.println("[SettingsRMI] : chatIP");
+            System.exit(0); // 0: ok, -1: ko
             return null;
         }
     }
 
-    /**
-     * <pre>
-     * UsePcSecret : either/either:
-     * 		-DIP_Horloge= ...
-     * 		-DIS_MONO_PC=...
-     * </pre>
-     */
-    private static InetAddress horlogeIP()
+    private static InetAddress registryIP()
     {
-        // soit on doit se connecter a horloge
-        // soit on doit partager horloge
         try
         {
-            String ipHorloge = System.getProperty("IP_Horloge");
+            String ipRegistry = System.getProperty("IP_Registry");
 
             if (isMonoPc())
             {
                 return ipMonoPC();
             }
-            else if (ipHorloge != null)
+            else if (ipRegistry != null)
             {
-                return InetAddress.getByName(ipHorloge); // ip use for remote connection to horloge
+                return InetAddress.getByName(ipRegistry); // ip use for remote connection to Registry
             }
             else
             {
-                // ip use for share horloge
-                {
-                    //InetAddress thisMachine=InetAddress.getByName("192.168.0.24");		// IP standard, ko si vpn ouvert  	(warning : IP change a chaque session)
-                    //InetAddress thisMachine= InetAddress.getByName("157.26.67.49");		// IP VPN 							(warning : change a chaque session)
-
-                    InetAddress thisMachine = IpMachines.ipLucky();//choose VPN if VPN open
-
-                    String thisIP = thisMachine.getHostAddress();
-                    System.setProperty("java.rmi.server.hostname", thisIP);// usefull in linux
-
-                    return thisMachine;// choose VPN if VPN open
-                }
+                System.err.println("\n[SettingsRMI] : registryIP : if -DIS_MONO_PC=false, you MUST set -DIP_Registry !");
+                System.exit(0); // 0: ok, -1: ko
+                return null;
             }
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            System.err.println("[SettingsRMI] : horlogeIP");
-            System.exit(-1); // 0 normal, -1 anormal
+            System.err.println("[SettingsRMI] : registryIP");
+            System.exit(0); // 0: ok, -1: ko
             return null;
         }
     }
@@ -204,22 +150,7 @@ public class SettingsRMI
 
     private static InetAddress ipMonoPC() throws Exception
     {
-        final boolean IS_V1 = false;
-
-        if (IS_V1)// vrai localhost:
-        {
-            return InetAddress.getByName("localhost");
-
-            //return InetAddress.getByName("127.0.0.1");
-            //return InetAddress.getLocalHost();
-        }
-        else// en passant par la carte:
-        {
-            return IpMachines.ipLucky();//choose VPN if VPN open
-
-            //return InetAddress.getByName("192.168.0.24");		// IP standard, ko si vpn ouvert  	(warning : IP change a chaque session)
-            //return InetAddress.getByName("157.26.67.49"); // IP VPN 							(warning : IP change a chaque session)
-        }
+        return InetAddress.getByName("localhost"); // or InetAddress.getByName("127.0.0.1") or InetAddress.getLocalHost()
     }
 
     private static boolean isMonoPc()
@@ -229,12 +160,12 @@ public class SettingsRMI
         if (isMonoPc == null || (!isMonoPc.equals("true") && !isMonoPc.equals("false")))
         {
             System.err.println("\n[SettingsRMI] : isMonoPc : launch JVM with : -DIS_MONO_PC=true\n");
-            System.exit(-1); // 0 normal, -1 anormal
+            System.exit(0); // 0: ok, -1: ko
             return false;
         }
         else
         {
-            return Boolean.valueOf(isMonoPc);
+            return Boolean.parseBoolean(isMonoPc);
         }
     }
 
@@ -246,21 +177,20 @@ public class SettingsRMI
 	|*				Chat     		*|
 	\*------------------------------*/
 
-    private static final int RMI_PORT = Ports.PORT_RMI_DEFAUT;
-    private static final InetAddress RMI_INETADDRESS = horlogeIP();
+    private static final int CHAT_RMI_PORT = Ports.PORT_RMI_DEFAUT; // 1099
 
-    public static RmiURL CREATE_RMI_URL(String RMI_ID)
+    public static RmiURL CHAT_RMI_URL(String CHAT_RMI_ID) // CHAT_RMI_ID is guaranteeing the unicity
     {
-        return new RmiURL(RMI_ID, RMI_INETADDRESS, RMI_PORT);
+        return new RmiURL(CHAT_RMI_ID, chatIP(), CHAT_RMI_PORT);
     }
 
     /*------------------------------*\
 	|*			 Registry   	   	*|
 	\*------------------------------*/
 
-    private static final String REGISTRY_RMI_ID = Registry.class.getName();// Guarantee the unicity
-    private static final int REGISTRY_RMI_PORT = Ports.PORT_RMI_DEFAUT;
-    private static final InetAddress REGISTRY_RMI_INETADDRESS = horlogeIP();
+    private static final String REGISTRY_RMI_ID = Registry.class.getName(); // Guarantee the unicity
+    private static final InetAddress REGISTRY_RMI_INETADDRESS = registryIP(); // Is static because IP_Registry HAS to be set
+    private static final int REGISTRY_RMI_PORT = Ports.PORT_RMI_DEFAUT; // 1099
 
     public static final RmiURL REGISTRY_RMI_URL = new RmiURL(REGISTRY_RMI_ID, REGISTRY_RMI_INETADDRESS, REGISTRY_RMI_PORT);
 

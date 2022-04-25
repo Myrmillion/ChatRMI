@@ -124,7 +124,7 @@ public class JChat extends Box
 
     private void control()
     {
-        // Send Button
+        // Send (Button)
         jSend.addActionListener(e ->
         {
             try
@@ -150,13 +150,13 @@ public class JChat extends Box
             }
         });
 
-        // Disconnect Button
+        // Disconnect (Button)
         jDisconnect.addActionListener(e ->
         {
             SwingUtilities.getWindowAncestor(this).dispose();
         });
 
-        // To add a listener directly on the Ancestor
+        // Adding a listener to the Ancestor
         addAncestorListener(new AncestorAdapter()
         {
             // Called once the Ancestor is made visible (so we are sure it exists and is instantiated)
@@ -178,7 +178,8 @@ public class JChat extends Box
                             disconnectChat();
                             chatController.removeUserInConnectedUsers(source);
 
-                            // just in case, we never know, don't want to lose this piece of code : SwingUtilities.getWindowAncestor(source).dispatchEvent(new WindowEvent(SwingUtilities.getWindowAncestor(source), WindowEvent.WINDOW_CLOSING));
+                            // just in case, we never know, don't want to lose this piece of code :
+                            // SwingUtilities.getWindowAncestor(source).dispatchEvent(new WindowEvent(SwingUtilities.getWindowAncestor(source), WindowEvent.WINDOW_CLOSING));
                         }
                     }
                 });
@@ -196,26 +197,26 @@ public class JChat extends Box
 
     private void appearance()
     {
-        // Display remote
+        // Display remote (JTextPane)
         this.jDisplayRemote.setEditable(false);
         alignTextInPane(this.jDisplayRemote, StyleConstants.ALIGN_LEFT);
         this.jDisplayRemote.setFont(new Font("SansSerif", Font.BOLD, JMain.FONT_TEXT_FIELD_SIZE));
 
-        // Display local
+        // Display local (JTextPane)
         this.jDisplayLocal.setEditable(false);
         alignTextInPane(this.jDisplayLocal, StyleConstants.ALIGN_RIGHT);
         this.jDisplayLocal.setFont(new Font("SansSerif", Font.BOLD, JMain.FONT_TEXT_FIELD_SIZE));
 
-        // Disconnect Button
+        // Disconnect (Button)
         this.jDisconnect.setFont(new Font(Font.SANS_SERIF, Font.BOLD, JMain.FONT_BUTTON_SIZE));
         JComponents.setHeight(this.jDisconnect, 50);
 
-        // Message
+        // Message (JTextField)
         this.jMessage.setHorizontalAlignment(SwingConstants.CENTER);
         this.jMessage.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, JMain.FONT_TEXT_FIELD_SIZE));
         JComponents.setHeight(this.jMessage, 50);
 
-        // Send Button
+        // Send (Button)
         this.jSend.setFont(new Font(Font.SANS_SERIF, Font.BOLD, JMain.FONT_BUTTON_SIZE));
         JComponents.setHeight(this.jSend, 50);
     }
