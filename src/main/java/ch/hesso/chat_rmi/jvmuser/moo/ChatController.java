@@ -2,6 +2,7 @@ package ch.hesso.chat_rmi.jvmuser.moo;
 
 import ch.hearc.tools.rmi.Rmis;
 import ch.hesso.chat_rmi.SettingsRMI;
+import ch.hesso.chat_rmi.jvmregistry.moo.Registry;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry_I;
 import ch.hesso.chat_rmi.jvmuser.gui.JChat;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
@@ -24,7 +25,7 @@ public class ChatController
 
     public ChatController()
     {
-        this.listConnectedUsers = new ArrayList<Map.Entry<User, JChat>>();
+        this.listCurrentChatting = new ArrayList<Map.Entry<User, JChat>>();
     }
 
     /*------------------------------*\
@@ -47,7 +48,7 @@ public class ChatController
 
     public void updateGUI(User userFrom, String message)
     {
-        this.listConnectedUsers.stream().parallel()//
+        this.listCurrentChatting.stream().parallel()//
                 .filter(entry -> entry.getKey().equals(userFrom))//
                 .map(Map.Entry::getValue)//
                 .findFirst().ifPresent(jChat -> jChat.updateGUI(message));
@@ -57,7 +58,7 @@ public class ChatController
     |*	            RMI	         	*|
     \*------------------------------*/
 
-    public void create(String username) throws MalformedURLException, RemoteException
+    public void prepareRMI(String username) throws MalformedURLException, RemoteException
     {
         // Create the local user and the local chat
         this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username + (new Date()).getTime())); // time guarantee unicity if users with same name
@@ -67,7 +68,7 @@ public class ChatController
         shareChat();
 
         // Fetch the registry and add the local user
-        this.registry = (Registry_I) Rmis.connectRemoteObjectSync(SettingsRMI.REGISTRY_RMI_URL, 0, 4);
+        this.registry = (Registry_I)(Rmis.connectRemoteObjectSync(SettingsRMI.REGISTRY_RMI_URL, 250, 8));
         this.registry.addUser(this.userLocal);
     }
 
@@ -80,7 +81,7 @@ public class ChatController
             String firstMessage = "You accepted to chat with " + userFrom + " !";
 
             JChat jChat = new JChat(this.userLocal, firstMessage, chatRemote);
-            this.listConnectedUsers.add(new AbstractMap.SimpleEntry<User, JChat>(userFrom, jChat));
+            this.listCurrentChatting.add(new AbstractMap.SimpleEntry<User, JChat>(userFrom, jChat));
             new JFrameChat(jChat, userFrom.toString());
         }
         catch (RemoteException | MalformedURLException e)
@@ -92,26 +93,26 @@ public class ChatController
 
     public void disconnectChat(User userFrom)
     {
-        this.listConnectedUsers.stream().parallel()//
+        this.listCurrentChatting.stream().parallel()//
                 .filter(entry -> entry.getKey().equals(userFrom))//
                 .findFirst().ifPresent(entry ->
                 {
                     entry.getValue().setStopCallback(true);
                     SwingUtilities.getWindowAncestor(entry.getValue()).dispose(); // retrieve jChat Window Ancestor and dispose of it
-                    this.listConnectedUsers.remove(entry); // remove disconnecting user from list of connected users
+                    this.listCurrentChatting.remove(entry); // remove disconnecting user from list of connected users
                 });
     }
 
     public List<User> getListAvailableUsers() throws RemoteException
     {
-        List<User> listConnectedUsers = this.listConnectedUsers.stream().parallel().map(Map.Entry::getKey).toList();
+        List<User> listCurrentUsers = this.listCurrentChatting.stream().parallel().map(Map.Entry::getKey).toList();
 
         return this.registry.getListUser().stream().parallel().//
-                filter(userAvailable -> !userAvailable.equals(this.userLocal) && !listConnectedUsers.contains(userAvailable)).//
+                filter(userAvailable -> !userAvailable.equals(this.userLocal) && !listCurrentUsers.contains(userAvailable)).//
                 toList();
     }
 
-    public void removeUserInRegistry() throws RemoteException
+    public void removeLocalUserFromRegistry() throws RemoteException
     {
         if (this.registry != null)
         {
@@ -121,9 +122,9 @@ public class ChatController
 
     public void askConnection(User userTo)
     {
-        List<User> listConnectedUsers = this.listConnectedUsers.stream().parallel().map(Map.Entry::getKey).toList();
+        List<User> listCurrentUsers = this.listCurrentChatting.stream().parallel().map(Map.Entry::getKey).toList();
 
-        if (!listConnectedUsers.contains(userTo))
+        if (!listCurrentUsers.contains(userTo))
         {
             new Thread(() ->
             {
@@ -136,7 +137,7 @@ public class ChatController
                         String firstMessage = userTo + " has accepted to chat with you !";
 
                         JChat jChat = new JChat(this.userLocal, firstMessage, chatRemote);
-                        this.listConnectedUsers.add(new AbstractMap.SimpleEntry<User, JChat>(userTo, jChat));
+                        this.listCurrentChatting.add(new AbstractMap.SimpleEntry<User, JChat>(userTo, jChat));
                         new JFrameChat(jChat, userTo.toString());
                     }
                 }
@@ -149,11 +150,11 @@ public class ChatController
         }
     }
 
-    public void removeUserInConnectedUsers(JChat jChat)
+    public void removeLocalUserFromCurrentChatting(JChat jChat)
     {
-        this.listConnectedUsers.stream().parallel()//
+        this.listCurrentChatting.stream().parallel()//
                 .filter(entry -> entry.getValue().equals(jChat))//
-                .findFirst().ifPresent(entry -> this.listConnectedUsers.remove(entry));
+                .findFirst().ifPresent(this.listCurrentChatting::remove);
     }
 
     /*------------------------------------------------------------------*\
@@ -187,10 +188,10 @@ public class ChatController
     // Outputs
 
     // Tools
-    private Chat_I chatLocal;
+    private Chat chatLocal;
     private Registry_I registry;
 
-    private List<Map.Entry<User, JChat>> listConnectedUsers;
+    private final List<Map.Entry<User, JChat>> listCurrentChatting;
 
     /*------------------------------*\
     |*			  Static			*|

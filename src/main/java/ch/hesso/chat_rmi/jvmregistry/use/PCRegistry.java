@@ -3,6 +3,7 @@ package ch.hesso.chat_rmi.jvmregistry.use;
 import ch.hearc.tools.rmi.RmiURL;
 import ch.hearc.tools.rmi.Rmis;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry;
+import ch.hesso.chat_rmi.jvmregistry.moo.Registry_I;
 
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
@@ -57,10 +58,10 @@ public class PCRegistry
     \*------------------------------------------------------------------*/
 
     // Inputs
-    private RmiURL localURL;
+    private final RmiURL localURL;
 
     // Outputs
 
     // Tools
-    private Registry registry;
+    private Registry_I registry;
 }

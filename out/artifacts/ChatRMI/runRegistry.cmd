@@ -1,1 +1,1 @@
-java -cp ChatRMI.jar -DIS_MONO_PC=true -DIP_Registry=[TO_BE_EDITED] ch.hesso.chat_rmi.jvmregistry.use.UsePCRegistry
+java -cp ChatRMI.jar -DIS_MONO_PC=false -DIP_Registry=[TO_BE_EDITED] ch.hesso.chat_rmi.jvmregistry.use.UsePCRegistry

@@ -73,8 +73,8 @@ public class User implements Serializable
     \*------------------------------------------------------------------*/
 
     // Inputs
-    private String username;
-    private RmiURL rmiURL;
+    private final String username;
+    private final RmiURL rmiURL;
 
     // Outputs
 

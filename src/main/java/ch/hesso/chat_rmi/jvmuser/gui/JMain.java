@@ -110,7 +110,7 @@ public class JMain extends Box
 
                 try
                 {
-                    this.chatController.create(this.jUsername.getText());
+                    this.chatController.prepareRMI(this.jUsername.getText());
                 }
                 catch (RemoteException | MalformedURLException ex)
                 {
@@ -138,10 +138,7 @@ public class JMain extends Box
         });
 
         // Resynchronize (Button)
-        jResynchronize.addActionListener(e ->
-        {
-            updateListModel();
-        });
+        jResynchronize.addActionListener(e -> updateListModel());
 
         // Connect (Button)
         jAskChat.addActionListener(e ->
@@ -168,7 +165,7 @@ public class JMain extends Box
                     {
                         try
                         {
-                            chatController.removeUserInRegistry();
+                            chatController.removeLocalUserFromRegistry();
                         }
                         catch (RemoteException ex)
                         {
@@ -227,8 +224,8 @@ public class JMain extends Box
     // Inputs
 
     // Tools
-    private ChatController chatController;
-    private DefaultListModel<User> listAvailableUsers;
+    private final ChatController chatController;
+    private final DefaultListModel<User> listAvailableUsers;
 
     private JLabel jLabelUsername;
     private JTextField jUsername;

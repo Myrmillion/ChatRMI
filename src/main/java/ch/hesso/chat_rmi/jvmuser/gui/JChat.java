@@ -1,9 +1,10 @@
 package ch.hesso.chat_rmi.jvmuser.gui;
 
+import ch.hesso.chat_rmi.jvmuser.moo.Chat;
+import ch.hesso.chat_rmi.jvmuser.moo.Chat_I;
 import ch.hesso.chat_rmi.jvmuser.moo.User;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.*;
 import ch.hesso.chat_rmi.jvmuser.moo.ChatController;
-import ch.hesso.chat_rmi.jvmuser.moo.Chat_I;
 
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
@@ -151,10 +152,7 @@ public class JChat extends Box
         });
 
         // Disconnect (Button)
-        jDisconnect.addActionListener(e ->
-        {
-            SwingUtilities.getWindowAncestor(this).dispose();
-        });
+        jDisconnect.addActionListener(e -> SwingUtilities.getWindowAncestor(this).dispose());
 
         // Adding a listener to the Ancestor
         addAncestorListener(new AncestorAdapter()
@@ -176,7 +174,7 @@ public class JChat extends Box
                         if (!stopCallback)
                         {
                             disconnectChat();
-                            chatController.removeUserInConnectedUsers(source);
+                            chatController.removeLocalUserFromCurrentChatting(source);
 
                             // just in case, we never know, don't want to lose this piece of code :
                             // SwingUtilities.getWindowAncestor(source).dispatchEvent(new WindowEvent(SwingUtilities.getWindowAncestor(source), WindowEvent.WINDOW_CLOSING));
@@ -234,11 +232,11 @@ public class JChat extends Box
 	\*------------------------------------------------------------------*/
 
     // Inputs
-    private User userLocal;
-    private Chat_I chatRemote;
+    private final User userLocal;
+    private final Chat_I chatRemote;
 
     // Tools
-    private ChatController chatController;
+    private final ChatController chatController;
     private boolean stopCallback;
 
     private JScrollPane jScrollPane;
