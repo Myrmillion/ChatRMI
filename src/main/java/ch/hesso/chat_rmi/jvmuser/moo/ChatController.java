@@ -2,7 +2,6 @@ package ch.hesso.chat_rmi.jvmuser.moo;
 
 import ch.hearc.tools.rmi.Rmis;
 import ch.hesso.chat_rmi.SettingsRMI;
-import ch.hesso.chat_rmi.jvmregistry.moo.Registry;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry_I;
 import ch.hesso.chat_rmi.jvmuser.gui.JChat;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
@@ -10,6 +9,9 @@ import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
 import javax.swing.*;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.List;
 
@@ -46,10 +48,10 @@ public class ChatController
     |*							Public Methods 							*|
     \*------------------------------------------------------------------*/
 
-    public void updateGUI(User userFrom, String message)
+    public void updateGUI(Message message)
     {
         this.listCurrentChatting.stream().parallel()//
-                .filter(entry -> entry.getKey().equals(userFrom))//
+                .filter(entry -> entry.getKey().equals(message.getUserFrom()))//
                 .map(Map.Entry::getValue)//
                 .findFirst().ifPresent(jChat -> jChat.updateGUI(message));
     }
@@ -58,17 +60,22 @@ public class ChatController
     |*	            RMI	         	*|
     \*------------------------------*/
 
-    public void prepareRMI(String username) throws MalformedURLException, RemoteException
+    public void prepareRMI(String username) throws MalformedURLException, RemoteException, NoSuchAlgorithmException
     {
+        // Generate public and private key for this user
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        this.keyPair = generator.generateKeyPair();
+
         // Create the local user and the local chat
-        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username + (new Date()).getTime())); // time guarantee unicity if users with same name
+        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username + (new Date()).getTime()), this.keyPair.getPublic()); // time guarantee unicity if users with same name
         this.chatLocal = new Chat();
 
         // Share the chatLocal on the local url (RMI)
         shareChat();
 
         // Fetch the registry and add the local user
-        this.registry = (Registry_I)(Rmis.connectRemoteObjectSync(SettingsRMI.REGISTRY_RMI_URL, 250, 8));
+        this.registry = (Registry_I) (Rmis.connectRemoteObjectSync(SettingsRMI.REGISTRY_RMI_URL, 250, 8));
         this.registry.addUser(this.userLocal);
     }
 
@@ -190,6 +197,7 @@ public class ChatController
     // Tools
     private Chat chatLocal;
     private Registry_I registry;
+    private KeyPair keyPair;
 
     private final List<Map.Entry<User, JChat>> listCurrentChatting;
 

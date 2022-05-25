@@ -14,6 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
+import java.security.NoSuchAlgorithmException;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -112,7 +113,7 @@ public class JMain extends Box
                 {
                     this.chatController.prepareRMI(this.jUsername.getText());
                 }
-                catch (RemoteException | MalformedURLException ex)
+                catch (RemoteException | MalformedURLException | NoSuchAlgorithmException ex)
                 {
                     System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
                     System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");

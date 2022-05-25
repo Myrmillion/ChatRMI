@@ -2,16 +2,16 @@ package ch.hesso.chat_rmi.jvmuser.gui.tools;
 
 import javax.swing.*;
 
-public class JCentersH extends Box
+public class JCentersV extends Box
 {
 
 	/*------------------------------------------------------------------*\
 	|*							Constructeurs							*|
 	\*------------------------------------------------------------------*/
 
-    public JCentersH(JComponent... jComponents)
+    public JCentersV(JComponent... jComponents)
     {
-        super(BoxLayout.X_AXIS);
+        super(BoxLayout.Y_AXIS);
 
         this.jComponents = jComponents;
 
@@ -30,12 +30,12 @@ public class JCentersH extends Box
 
     private void geometrie()
     {
-        add(Box.createHorizontalGlue());
+        add(Box.createVerticalGlue());
         for(JComponent jComponent :this.jComponents)
         {
             add(jComponent);
         }
-        add(createHorizontalGlue());
+        add(createVerticalGlue());
     }
 
     private void controle()

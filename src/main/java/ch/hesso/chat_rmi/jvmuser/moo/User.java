@@ -3,6 +3,7 @@ package ch.hesso.chat_rmi.jvmuser.moo;
 import ch.hearc.tools.rmi.RmiURL;
 
 import java.io.Serializable;
+import java.security.PublicKey;
 
 public class User implements Serializable
 {
@@ -14,6 +15,13 @@ public class User implements Serializable
     {
         this.username = username;
         this.rmiURL = rmiURL;
+        this.publicKey = null;
+    }
+
+    public User(String username, RmiURL rmiURL, PublicKey publicKey) {
+        this.username = username;
+        this.rmiURL = rmiURL;
+        this.publicKey = null;
     }
 
     /*------------------------------------------------------------------*\
@@ -79,4 +87,6 @@ public class User implements Serializable
     // Outputs
 
     // Tools
+    private final PublicKey publicKey;
+
 }

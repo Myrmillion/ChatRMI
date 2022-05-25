@@ -64,10 +64,10 @@ public class Chat implements Chat_I
     }
 
     @Override
-    public void setMessage(User userFrom, String message) throws RemoteException
+    public void setMessage(Message message) throws RemoteException
     {
         // Update the GUI
-        this.chatController.updateGUI(userFrom, message);
+        this.chatController.updateGUI(message);
     }
 
     @Override

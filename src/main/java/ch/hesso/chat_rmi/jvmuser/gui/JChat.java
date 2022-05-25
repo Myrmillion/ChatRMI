@@ -1,17 +1,13 @@
 package ch.hesso.chat_rmi.jvmuser.gui;
 
-import ch.hesso.chat_rmi.jvmuser.moo.Chat;
-import ch.hesso.chat_rmi.jvmuser.moo.Chat_I;
-import ch.hesso.chat_rmi.jvmuser.moo.User;
+import ch.hesso.chat_rmi.jvmuser.moo.*;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.*;
-import ch.hesso.chat_rmi.jvmuser.moo.ChatController;
 
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.rmi.RemoteException;
 
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
@@ -48,10 +44,10 @@ public class JChat extends Box
         this.stopCallback = stopCallback;
     }
 
-    public void updateGUI(String message)
+    public void updateGUI(Message message)
     {
-        insertTextCustomized(this.jDisplayRemote, message, TEXT_CHAT_SMALL, Color.WHITE, NICE_BLUE, false);
-        insertTextCustomized(this.jDisplayLocal, "", TEXT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, false);
+        insertTextCustomized(this.jDisplayRemote, message.getText(), FONT_CHAT_SMALL, Color.WHITE, NICE_BLUE, message.isImportant(), false);
+        insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, message.isImportant(), false);
     }
 
 	/*------------------------------------------------------------------*\
@@ -75,11 +71,11 @@ public class JChat extends Box
 
     private void displayFirstMessage(String firstMessage)
     {
-        insertTextCustomized(this.jDisplayRemote, firstMessage, TEXT_CHAT_BIG, NICE_BLUE, Color.WHITE, true);
-        insertTextCustomized(this.jDisplayLocal, "", TEXT_CHAT_BIG, Color.WHITE, NICE_ORANGE, true);
+        insertTextCustomized(this.jDisplayRemote, firstMessage, FONT_CHAT_BIG, NICE_BLUE, TRANSPARENT, false, true);
+        insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_BIG, Color.WHITE, TRANSPARENT, false, true);
     }
 
-    private void insertTextCustomized(JTextPane jTextPane, String message, int fontSize, Color fontColor, Color backColor, boolean underlined)
+    private void insertTextCustomized(JTextPane jTextPane, String message, int fontSize, Color fontColor, Color backColor, boolean isImportant, boolean underlined)
     {
         SimpleAttributeSet set = new SimpleAttributeSet();
         StyleConstants.setFontSize(set, fontSize);
@@ -88,9 +84,24 @@ public class JChat extends Box
         StyleConstants.setUnderline(set, underlined);
 
         StyledDocument doc = jTextPane.getStyledDocument();
+
         try
         {
-            doc.insertString(doc.getLength(), message + "\n\n", set);
+            if (!message.isEmpty())
+            {
+                doc.insertString(doc.getLength(), " " + message + " ", set);
+
+                if (isImportant)
+                {
+                    SimpleAttributeSet importantSet = new SimpleAttributeSet();
+                    StyleConstants.setFontSize(importantSet, FONT_CHAT_IMPORTANT);
+                    StyleConstants.setForeground(importantSet, NICE_RED);
+
+                    doc.insertString(doc.getLength(), " !", importantSet);
+                }
+            }
+
+            doc.insertString(doc.getLength(), "\n\n", set);
         }
         catch (BadLocationException e)
         {
@@ -113,11 +124,16 @@ public class JChat extends Box
         this.jDisconnect = new JButton("Disconnect");
         this.jMessage = new JTextField();
         this.jSend = new JButton("Send");
+        this.jImportant = new JCheckBox("Important ?");
 
         Box boxH = new Box(BoxLayout.X_AXIS);
         boxH.add(this.jDisconnect);
         boxH.add(this.jMessage);
-        boxH.add(this.jSend);
+
+        JCentersV jCentersV = new JCentersV(this.jSend, this.jImportant);
+        JComponents.setHeight(jCentersV, 50);
+
+        boxH.add(jCentersV);
 
         add(this.jScrollPane);
         add(boxH);
@@ -125,29 +141,26 @@ public class JChat extends Box
 
     private void control()
     {
+        // Important (CheckBox)
+        jImportant.addItemListener(e ->
+        {
+            jMessage.requestFocusInWindow();
+        });
+
         // Send (Button)
         jSend.addActionListener(e ->
         {
-            try
+            send();
+        });
+
+        jMessage.addKeyListener(new KeyAdapter()
+        {
+            public void keyPressed(KeyEvent e)
             {
-                if (!this.jMessage.getText().isEmpty())
+                if (e.getKeyCode() == 10)
                 {
-                    String message = jMessage.getText();
-
-                    // Sending message with chatRemote
-                    this.chatRemote.setMessage(this.userLocal, message);
-                    insertTextCustomized(this.jDisplayRemote, "", TEXT_CHAT_SMALL, Color.WHITE, NICE_BLUE, false);
-                    insertTextCustomized(this.jDisplayLocal, message, TEXT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, false);
-
-                    // Resetting the message area
-                    this.jMessage.setText("");
-                    this.jMessage.requestFocusInWindow();
+                    send(e.isControlDown()); // whether Ctrl is hold message is being sent
                 }
-            }
-            catch (RemoteException ex)
-            {
-                System.err.println("[JChat] : jSend-actionListener : fail");
-                ex.printStackTrace();
             }
         });
 
@@ -193,6 +206,37 @@ public class JChat extends Box
         });
     }
 
+    private void send()
+    {
+        send(false);
+    }
+
+    private void send(boolean isCtrlHold)
+    {
+        try
+        {
+            if (!this.jMessage.getText().isEmpty())
+            {
+                String text = jMessage.getText();
+                boolean isImportant = jImportant.isSelected() || isCtrlHold;
+
+                // Sending message with chatRemote
+                this.chatRemote.setMessage(new Message(this.userLocal, text, isImportant));
+                insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+                insertTextCustomized(this.jDisplayLocal, text, FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, isImportant, false);
+
+                // Resetting the message area
+                this.jMessage.setText("");
+                this.jMessage.requestFocusInWindow();
+            }
+        }
+        catch (RemoteException ex)
+        {
+            System.err.println("[JChat] : jSend-actionListener : fail");
+            ex.printStackTrace();
+        }
+    }
+
     private void appearance()
     {
         // Display remote (JTextPane)
@@ -208,6 +252,7 @@ public class JChat extends Box
         // Disconnect (Button)
         this.jDisconnect.setFont(new Font(Font.SANS_SERIF, Font.BOLD, JMain.FONT_BUTTON_SIZE));
         JComponents.setHeight(this.jDisconnect, 50);
+        JComponents.setWidth(this.jDisconnect, BTN_BIG_WIDTH);
 
         // Message (JTextField)
         this.jMessage.setHorizontalAlignment(SwingConstants.CENTER);
@@ -216,7 +261,8 @@ public class JChat extends Box
 
         // Send (Button)
         this.jSend.setFont(new Font(Font.SANS_SERIF, Font.BOLD, JMain.FONT_BUTTON_SIZE));
-        JComponents.setHeight(this.jSend, 50);
+        JComponents.setWidth(this.jSend, BTN_SMALL_WIDTH);
+
     }
 
     private void alignTextInPane(JTextPane jTextPane, int alignment)
@@ -246,14 +292,21 @@ public class JChat extends Box
     private JButton jDisconnect;
     private JTextField jMessage;
     private JButton jSend;
+    private JCheckBox jImportant;
 
     /*------------------------------*\
     |*			  Static		   	*|
     \*------------------------------*/
 
-    private static final int TEXT_CHAT_SMALL = 25;
-    private static final int TEXT_CHAT_BIG = 28;
+    private static final int BTN_SMALL_WIDTH = 100;
+    private static final int BTN_BIG_WIDTH = 125;
+
+    private static final int FONT_CHAT_SMALL = 25;
+    private static final int FONT_CHAT_BIG = 28;
+    private static final int FONT_CHAT_IMPORTANT = 28;
 
     private static final Color NICE_BLUE = new Color(81, 160, 213);
     private static final Color NICE_ORANGE = new Color(255, 149, 0);
+    private static final Color NICE_RED = new Color(199, 55, 47);
+    private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 }
