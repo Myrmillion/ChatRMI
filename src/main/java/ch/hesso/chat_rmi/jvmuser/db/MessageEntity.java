@@ -12,7 +12,8 @@ public class MessageEntity implements Serializable {
     @GeneratedValue
     private long id;
 
-    private int userId;
+    private int userFromId;
+    private int userToId;
     private String message;
     private String date;
     private String time;
@@ -20,8 +21,9 @@ public class MessageEntity implements Serializable {
     public MessageEntity() {
     }
 
-    public MessageEntity(int userId, String message, String date, String time) {
-        this.userId = userId;
+    public MessageEntity(int userFromId, int userToId, String message, String date, String time) {
+        this.userFromId = userFromId;
+        this.userToId = userToId;
         this.message = message;
         this.date = date;
         this.time = time;
@@ -35,12 +37,20 @@ public class MessageEntity implements Serializable {
         this.id = id;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getUserFromId() {
+        return userFromId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserFromId(int userFromId) {
+        this.userFromId = userFromId;
+    }
+
+    public int getUserToId() {
+        return userToId;
+    }
+
+    public void setUserToId(int userToId) {
+        this.userToId = userToId;
     }
 
     public String getMessage() {
@@ -69,7 +79,7 @@ public class MessageEntity implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("(%d, %s)", this.userId, this.message);
+        return String.format("(%d, %d, %s)", this.userFromId,this.userToId, this.message);
     }
 }
 

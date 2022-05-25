@@ -63,8 +63,8 @@ public class JMain extends Box {
         em.getTransaction().commit();
 
         em.getTransaction().begin();
-        MessageEntity m1 = new MessageEntity(12, "Hello world", LocalDate.now().toString(), LocalTime.now().toString());
-        MessageEntity m2 = new MessageEntity(16, "PTDR T KI?", LocalDate.now().toString(), LocalTime.now().toString());
+        MessageEntity m1 = new MessageEntity(12, 16, "Hello world", LocalDate.now().toString(), LocalTime.now().toString());
+        MessageEntity m2 = new MessageEntity(16, 12, "PTDR T KI?", LocalDate.now().toString(), LocalTime.now().toString());
         em.persist(m1);
         em.persist(m2);
         em.getTransaction().commit();
@@ -74,8 +74,8 @@ public class JMain extends Box {
         System.out.println("Total MessageEntity: " + q1.getSingleResult());
 
         // Find the average X value:
-        Query q2 = em.createQuery("SELECT AVG(m.userId) FROM MessageEntity m");
-        System.out.println("Average userId: " + q2.getSingleResult());
+        Query q2 = em.createQuery("SELECT AVG(m.userFromId) FROM MessageEntity m");
+        System.out.println("Average userFromId: " + q2.getSingleResult());
 
         // Retrieve all the Point objects from the database:
         TypedQuery<MessageEntity> query = em.createQuery("SELECT m FROM MessageEntity m", MessageEntity.class);
