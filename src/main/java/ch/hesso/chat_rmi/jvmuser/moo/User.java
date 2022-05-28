@@ -18,7 +18,8 @@ public class User implements Serializable
         this.publicKey = null;
     }
 
-    public User(String username, RmiURL rmiURL, PublicKey publicKey) {
+    public User(String username, RmiURL rmiURL, PublicKey publicKey)
+    {
         this.username = username;
         this.rmiURL = rmiURL;
         this.publicKey = null;
@@ -61,6 +62,12 @@ public class User implements Serializable
         {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return username.concat(rmiURL.toString()).hashCode();
     }
 
     /*------------------------------*\

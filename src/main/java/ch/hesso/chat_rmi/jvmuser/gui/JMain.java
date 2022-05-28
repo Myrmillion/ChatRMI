@@ -24,22 +24,27 @@ import java.time.LocalTime;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-public class JMain extends Box {
+public class JMain extends Box
+{
 
 	/*------------------------------------------------------------------*\
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JMain() {
+    public JMain()
+    {
         super(BoxLayout.Y_AXIS);
 
-        this.testDB();
+        testDB();
+
         this.chatController = ChatController.getInstance();
         this.listAvailableUsers = new DefaultListModel<User>();
 
         geometry();
         control();
         appearance();
+
+        SwingUtilities.invokeLater(() -> this.chatController.setParentFrame(this));
     }
 
 	/*------------------------------------------------------------------*\
@@ -50,11 +55,14 @@ public class JMain extends Box {
 	|*							Private Methods						    *|
 	\*------------------------------------------------------------------*/
 
-    private void testDB() {
+    private void testDB()
+    {
         // Open a database connection
         // (create a new database if it doesn't exist yet):
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("$objectdb/db/messages.odb");
         EntityManager em = emf.createEntityManager();
+        em.getMetamodel().entity(MessageEntity.class);
+
 
         // CLEAR ALL THE DATABASE
         em.getTransaction().begin();
@@ -69,7 +77,7 @@ public class JMain extends Box {
         em.persist(m2);
         em.getTransaction().commit();
 
-        // Find the number of Point objects in the database:
+        // Find the number of Message objects in the database:
         Query q1 = em.createQuery("SELECT COUNT(m) FROM MessageEntity m");
         System.out.println("Total MessageEntity: " + q1.getSingleResult());
 
@@ -77,10 +85,12 @@ public class JMain extends Box {
         Query q2 = em.createQuery("SELECT AVG(m.userFromId) FROM MessageEntity m");
         System.out.println("Average userFromId: " + q2.getSingleResult());
 
-        // Retrieve all the Point objects from the database:
+        // Retrieve all the Message objects from the database:
         TypedQuery<MessageEntity> query = em.createQuery("SELECT m FROM MessageEntity m", MessageEntity.class);
         List<MessageEntity> results = query.getResultList();
-        for (MessageEntity m : results) {
+
+        for (MessageEntity m : results)
+        {
             System.out.println(m);
         }
 
@@ -89,14 +99,19 @@ public class JMain extends Box {
         emf.close();
     }
 
-    private void updateListModel() {
+    private void updateListModel()
+    {
         this.listAvailableUsers.clear();
 
-        try {
-            for (User user : this.chatController.getListAvailableUsers()) {
+        try
+        {
+            for (User user : this.chatController.getListAvailableUsers())
+            {
                 this.listAvailableUsers.addElement(user);
             }
-        } catch (RemoteException e) {
+        }
+        catch (RemoteException e)
+        {
             System.err.println("[JMain] : updateListModel : fail");
             e.printStackTrace();
         }
@@ -106,7 +121,8 @@ public class JMain extends Box {
     |*	            GUI	         	*|
     \*------------------------------*/
 
-    private void geometry() {
+    private void geometry()
+    {
         this.jLabelUsername = new JLabel("Choose a username");
         this.jLabelChoice = new JLabel("Choose a user to chat with");
         this.jUsername = new JTextField();
@@ -132,11 +148,13 @@ public class JMain extends Box {
         add(createVerticalGlue());
     }
 
-    private void control() {
+    private void control()
+    {
         // Create (Button)
         jCreate.addActionListener(e ->
         {
-            if (!this.jUsername.getText().isEmpty()) {
+            if (!this.jUsername.getText().isEmpty())
+            {
                 this.jLabelUsername.setEnabled(false);
                 this.jUsername.setEnabled(false);
                 this.jCreate.setEnabled(false);
@@ -145,7 +163,8 @@ public class JMain extends Box {
                 this.jAvailableUsers.setEnabled(true);
                 this.jResynchronize.setEnabled(true);
 
-                try {
+                try
+                {
                     this.chatController.prepareRMI(this.jUsername.getText());
                 }
                 catch (RemoteException | MalformedURLException | NoSuchAlgorithmException ex)
@@ -160,7 +179,9 @@ public class JMain extends Box {
                 }
 
                 updateListModel();
-            } else {
+            }
+            else
+            {
                 this.jUsername.requestFocusInWindow();
             }
         });
@@ -181,21 +202,28 @@ public class JMain extends Box {
         });
 
         // Adding a listener to the Ancestor
-        addAncestorListener(new AncestorAdapter() {
+        addAncestorListener(new AncestorAdapter()
+        {
             // Called once the Ancestor is made visible (so we are sure it exists and is instantiated)
             @Override
-            public void ancestorAdded(AncestorEvent event) {
+            public void ancestorAdded(AncestorEvent event)
+            {
                 JMain source = (JMain) event.getSource();
 
                 // Ancestor JFrame's default close operation
                 ((JFrame) SwingUtilities.getWindowAncestor(source)).setDefaultCloseOperation(EXIT_ON_CLOSE);
 
                 // Ancestor Window "closed" behaviour (simply when dispose is called upon the window)
-                SwingUtilities.getWindowAncestor(source).addWindowListener(new WindowAdapter() {
-                    public void windowClosing(WindowEvent e) {
-                        try {
+                SwingUtilities.getWindowAncestor(source).addWindowListener(new WindowAdapter()
+                {
+                    public void windowClosing(WindowEvent e)
+                    {
+                        try
+                        {
                             chatController.removeLocalUserFromRegistry();
-                        } catch (RemoteException ex) {
+                        }
+                        catch (RemoteException ex)
+                        {
                             System.err.println("[JMain] : AncestorWindow-windowClosing : fail");
                             ex.printStackTrace();
                         }
@@ -205,7 +233,8 @@ public class JMain extends Box {
         });
     }
 
-    private void appearance() {
+    private void appearance()
+    {
         // Labels
         this.jLabelUsername.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
         this.jLabelChoice.setEnabled(false);

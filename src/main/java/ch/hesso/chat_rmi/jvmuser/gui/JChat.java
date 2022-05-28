@@ -9,6 +9,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.rmi.RemoteException;
+import java.util.List;
 
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
@@ -33,6 +34,7 @@ public class JChat extends Box
         appearance();
 
         displayFirstMessage(firstMessage);
+        displaySavedMessages();
     }
 
 	/*------------------------------------------------------------------*\
@@ -73,6 +75,14 @@ public class JChat extends Box
     {
         insertTextCustomized(this.jDisplayRemote, firstMessage, FONT_CHAT_BIG, NICE_BLUE, TRANSPARENT, false, true);
         insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_BIG, Color.WHITE, TRANSPARENT, false, true);
+    }
+
+    private void displaySavedMessages()
+    {
+        // TODO : À l'ouverture de JChat, on utilise le chatController pour aller récupérer les messages qu'on a avec
+        // TODO : le remote user et on les ajoute directement dans les JTextPane !
+
+        List<Message> listMessage = this.chatController.retrieveSavedMessages();
     }
 
     private void insertTextCustomized(JTextPane jTextPane, String message, int fontSize, Color fontColor, Color backColor, boolean isImportant, boolean underlined)
@@ -189,8 +199,15 @@ public class JChat extends Box
                     {
                         if (!stopCallback)
                         {
+
+
+                            //TODO
                             disconnectChat();
-                            chatController.removeLocalUserFromCurrentChatting(source);
+                            chatController.removeUserFromChatting(source);
+
+
+
+
 
                             // just in case, we never know, don't want to lose this piece of code :
                             // SwingUtilities.getWindowAncestor(source).dispatchEvent(new WindowEvent(SwingUtilities.getWindowAncestor(source), WindowEvent.WINDOW_CLOSING));
@@ -202,7 +219,15 @@ public class JChat extends Box
                 {
                     if (!stopCallback) // very important !!!
                     {
+
+
+
+                        //TODO
                         disconnectChat();
+
+
+
+
                     }
                 }));
             }
@@ -218,7 +243,7 @@ public class JChat extends Box
     {
         try
         {
-            if (!this.jMessage.getText().isEmpty())
+            if (!this.jMessage.getText().isBlank())
             {
                 String text = jMessage.getText();
                 boolean isImportant = jImportant.isSelected() || isCtrlHold;
