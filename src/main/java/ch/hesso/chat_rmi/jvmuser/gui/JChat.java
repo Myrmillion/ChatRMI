@@ -108,7 +108,10 @@ public class JChat extends Box
             e.printStackTrace();
         }
 
-        this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum());
+        SwingUtilities.invokeLater(() ->
+        {
+            this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum());
+        });
     }
 
     /*------------------------------*\

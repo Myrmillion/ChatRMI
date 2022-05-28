@@ -12,8 +12,8 @@ import java.security.PublicKey;
 
 public class Sendable implements Serializable
 {
-    public Sendable(Serializable content, PublicKey publicKey, PrivateKey privateKey) {
-
+    public Sendable(Serializable content, PublicKey publicKey, PrivateKey privateKey)
+    {
         try
         {
             // Create cipher
@@ -28,7 +28,9 @@ public class Sendable implements Serializable
             outputStream.writeObject(sealedObject);
             outputStream.close();
             this.content = ostream.toByteArray();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.out.println(e);
         }
     }
