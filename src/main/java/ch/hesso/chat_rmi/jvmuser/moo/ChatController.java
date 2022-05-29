@@ -20,9 +20,6 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Singleton
- */
 public class ChatController
 {
 
@@ -56,28 +53,11 @@ public class ChatController
 
     public void receiveMessage(Message message)
     {
-        // TODO : Sauvegarder le message envoyé par message.getUserFrom() et reçu par nous (userLocal) dans la BDD !!!!
-        // db.save(recvBy: userLocal, sentBy: message.getUserFrom(), message);
-
         // Update the GUI
-        this.mapUserChattingWith.entrySet().stream().parallel()//
-                .filter(entry -> entry.getKey().equals(message.getUserFrom()))//
-                .map(Map.Entry::getValue)//
-                .map(Pair::getValue1)//
-                .findFirst()//
-                .ifPresent(jChat -> jChat.updateGUI(message));
-    }
+        this.mapUserChattingWith.get(message.getUserFrom()).getValue1().updateGUI(message);
 
-    public void messageSent(JChat jChat)
-    {
-        User userRemote = this.mapUserChattingWith.entrySet().stream().parallel()//
-                .filter(entry -> entry.getValue().getValue1().equals(jChat))//
-                .map(Map.Entry::getKey)//
-                .findFirst()//
-                .get();
-
-        // TODO : Sauvegarder le message envoyé par nous (userLocal) et qui sera reçu par userRemote dans la BDD !!!!
-        // db.save(recvBy: userRemote, sentBy: userLocal, message);
+        // TODO : Sauvegarder le message envoyé par message.getUserFrom() et reçu par nous (userLocal) dans la BDD !!
+        // db.save(recvBy: userLocal, sentBy: message.getUserFrom(), message);
     }
 
     public List<Message> retrieveSavedMessages()
@@ -207,6 +187,9 @@ public class ChatController
         try
         {
             this.mapUserChattingWith.get(userTo).getValue0().setMessage(message);
+
+            // TODO : Sauvegarder le message envoyé par nous (userLocal) et qui sera reçu par userRemote dans la BDD !!
+            // db.save(recvBy: userRemote, sentBy: userLocal, message);
         }
         catch (RemoteException ex)
         {
@@ -219,7 +202,7 @@ public class ChatController
     {
         try
         {
-            this.mapUserChattingWith.get(userTo).getValue0().disconnectChat(this.userLocal); // getValue0() -> Chat_I
+            this.mapUserChattingWith.get(userTo).getValue0().disconnectChat(this.userLocal); // getValue0() => Chat_I
         }
         catch (RemoteException ex)
         {
