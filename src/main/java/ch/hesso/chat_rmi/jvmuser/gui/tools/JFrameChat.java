@@ -12,25 +12,25 @@ public class JFrameChat extends JFrame
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JFrameChat(JComponent jcomponent, boolean isFullScreen, String title)
+    public JFrameChat(JComponent jComponent, boolean isFullScreen, String title, boolean isVisible)
     {
         super(title);
 
-        this.jcomponent = jcomponent;
+        this.jComponent = jComponent;
 
         geometry();
         control();
-        appearance(isFullScreen);
+        appearance(isFullScreen, isVisible);
     }
 
     public JFrameChat(JComponent jcomponent, String userFrom, String userTo)
     {
-        this(jcomponent, false, "[" + userFrom + "]" + " Chatting with : " + userTo);
+        this(jcomponent, false, "[" + userFrom + "]" + " Chatting with : " + userTo, false);
     }
 
     public JFrameChat(JComponent jcomponent, String title)
     {
-        this(jcomponent, false, title);
+        this(jcomponent, false, title, true);
     }
 
 	/*------------------------------------------------------------------*\
@@ -45,7 +45,7 @@ public class JFrameChat extends JFrame
     {
         //by default jframe use a borderlayout in the middle !
         {
-            add(jcomponent);
+            add(jComponent);
         }
     }
 
@@ -54,7 +54,7 @@ public class JFrameChat extends JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    private void appearance(boolean isFullScreen)
+    private void appearance(boolean isFullScreen, boolean isVisible)
     {
         if (isFullScreen)
         {
@@ -68,7 +68,7 @@ public class JFrameChat extends JFrame
         }
 
         setLocationRelativeTo(null); // frame centrer
-        setVisible(true); // last!
+        setVisible(isVisible); // WILL BE MADE VISIBLE SOMEWHERE ELSE THAN INSIDE THE CLASS
     }
 
 	/*------------------------------------------------------------------*\
@@ -76,8 +76,7 @@ public class JFrameChat extends JFrame
 	\*------------------------------------------------------------------*/
 
     // Inputs
-    private JComponent jcomponent;
+    private final JComponent jComponent;
 
     // Tools
-
 }

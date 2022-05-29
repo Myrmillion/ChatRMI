@@ -51,14 +51,6 @@ public class ChatController
     |*							Public Methods 							*|
     \*------------------------------------------------------------------*/
 
-    public void receiveMessage(Message message)
-    {
-        // Update the GUI
-        this.mapUserChattingWith.get(message.getUserFrom()).getValue1().updateGUI(message);
-
-        // TODO : Sauvegarder le message envoyé par message.getUserFrom() et reçu par nous (userLocal) dans la BDD !!
-        // db.save(recvBy: userLocal, sentBy: message.getUserFrom(), message);
-    }
 
     public List<Message> retrieveSavedMessages()
     {
@@ -132,6 +124,15 @@ public class ChatController
         return (n.get() == 0); // 0: yes, 1: no, -1: no button clicked
     }
 
+    public void receiveMessage(Message message)
+    {
+        // Update the GUI
+        this.mapUserChattingWith.get(message.getUserFrom()).getValue1().updateGUI(message);
+
+        // TODO : Sauvegarder le message envoyé par message.getUserFrom() et reçu par nous (userLocal) dans la BDD !!
+        // db.save(recvBy: userLocal, sentBy: message.getUserFrom(), message);
+    }
+
     public void disconnectChat(User userFrom)
     {
         Pair<Chat_I, JChat> pair = this.mapUserChattingWith.remove(userFrom);
@@ -168,7 +169,7 @@ public class ChatController
                         JChat jChat = new JChat(this.userLocal, userTo, firstMessage);
                         this.mapUserChattingWith.put(userTo, new Pair<Chat_I, JChat>(chatRemote, jChat));
 
-                        new JFrameChat(jChat, userLocal.toString(), userTo.toString());
+                        prepareJFrameChat(jChat, userLocal.toString(), userTo.toString());
                     }
                 }
                 catch (RemoteException | MalformedURLException e)
@@ -258,6 +259,15 @@ public class ChatController
     |*							Private Methods						    *|
     \*------------------------------------------------------------------*/
 
+    private void prepareJFrameChat(JChat jChat, String userFrom, String userTo)
+    {
+        JFrameChat jFrameChat = new JFrameChat(jChat, userFrom, userTo);
+        jFrameChat.setLocationRelativeTo(this.parentFrame);
+
+        jFrameChat.setVisible(true);
+        jFrameChat.toFront();
+    }
+
     /*------------------------------*\
     |*	            RMI	         	*|
     \*------------------------------*/
@@ -276,7 +286,7 @@ public class ChatController
             JChat jChat = new JChat(this.userLocal, userFrom, firstMessage);
             this.mapUserChattingWith.put(userFrom, new Pair<Chat_I, JChat>(chatRemote, jChat));
 
-            new JFrameChat(jChat, this.userLocal.toString(), userFrom.toString());
+            prepareJFrameChat(jChat, this.userLocal.toString(), userFrom.toString());
         }
         catch (RemoteException | MalformedURLException e)
         {

@@ -35,8 +35,6 @@ public class JMain extends Box
     {
         super(BoxLayout.Y_AXIS);
 
-        testDB();
-
         this.chatController = ChatController.getInstance();
         this.listAvailableUsers = new DefaultListModel<User>();
 
@@ -44,6 +42,9 @@ public class JMain extends Box
         control();
         appearance();
 
+        testDB();
+
+        
         SwingUtilities.invokeLater(() -> this.chatController.setParentFrame(this));
     }
 
