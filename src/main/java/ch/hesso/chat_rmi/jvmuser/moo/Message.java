@@ -8,9 +8,8 @@ public class Message implements Serializable
     |*							Constructors							*|
     \*------------------------------------------------------------------*/
 
-    public Message(User userFrom, String text, boolean isImportant)
+    public Message(String text, boolean isImportant)
     {
-        this.userFrom = userFrom;
         this.text = text;
         this.isImportant = isImportant;
     }
@@ -23,11 +22,6 @@ public class Message implements Serializable
     /*------------------------------*\
     |*				Get				*|
     \*------------------------------*/
-
-    public User getUserFrom()
-    {
-        return userFrom;
-    }
 
     public String getText()
     {
@@ -50,7 +44,6 @@ public class Message implements Serializable
     \*------------------------------------------------------------------*/
 
     // Inputs
-    private final User userFrom;
     private final String text;
     private final boolean isImportant;
 

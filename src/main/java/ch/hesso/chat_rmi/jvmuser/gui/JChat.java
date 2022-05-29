@@ -228,7 +228,7 @@ public class JChat extends Box
             boolean isImportant = jImportant.isSelected() || isCtrlHold;
 
             // Sending message with chatController
-            this.chatController.sendMessage(new Message(this.userLocal, text, isImportant), this.userRemote);
+            this.chatController.sendMessage(new Message(text, isImportant), this.userRemote);
 
             insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
             insertTextCustomized(this.jDisplayLocal, text, FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, isImportant, false);

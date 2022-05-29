@@ -25,9 +25,9 @@ public class Chat implements Chat_I
     }
 
     @Override
-    public void setMessage(Message message) throws RemoteException
+    public void setMessage(User userFrom, Message message) throws RemoteException
     {
-        this.chatController.receiveMessage(message);
+        this.chatController.receiveMessage(userFrom, message);
     }
 
     @Override

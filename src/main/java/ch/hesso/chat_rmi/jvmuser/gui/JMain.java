@@ -1,14 +1,12 @@
 package ch.hesso.chat_rmi.jvmuser.gui;
 
 import ch.hesso.chat_rmi.SettingsRMI;
-import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
 import ch.hesso.chat_rmi.jvmuser.moo.User;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.AncestorAdapter;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JCenterH;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JComponents;
 import ch.hesso.chat_rmi.jvmuser.moo.ChatController;
 
-import javax.persistence.*;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
@@ -42,9 +40,6 @@ public class JMain extends Box
         control();
         appearance();
 
-        testDB();
-
-        
         SwingUtilities.invokeLater(() -> this.chatController.setParentFrame(this));
     }
 
@@ -55,50 +50,6 @@ public class JMain extends Box
 	/*------------------------------------------------------------------*\
 	|*							Private Methods						    *|
 	\*------------------------------------------------------------------*/
-
-    private void testDB()
-    {
-        // Open a database connection
-        // (create a new database if it doesn't exist yet):
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("$objectdb/db/messages.odb");
-        EntityManager em = emf.createEntityManager();
-        em.getMetamodel().entity(MessageEntity.class);
-
-
-        // CLEAR ALL THE DATABASE
-        em.getTransaction().begin();
-        Query q = em.createQuery("DELETE FROM MessageEntity");
-        q.executeUpdate();
-        em.getTransaction().commit();
-
-        em.getTransaction().begin();
-        MessageEntity m1 = new MessageEntity(12, 16, "Hello world", LocalDate.now().toString(), LocalTime.now().toString());
-        MessageEntity m2 = new MessageEntity(16, 12, "PTDR T KI?", LocalDate.now().toString(), LocalTime.now().toString());
-        em.persist(m1);
-        em.persist(m2);
-        em.getTransaction().commit();
-
-        // Find the number of Message objects in the database:
-        Query q1 = em.createQuery("SELECT COUNT(m) FROM MessageEntity m");
-        System.out.println("Total MessageEntity: " + q1.getSingleResult());
-
-        // Find the average X value:
-        Query q2 = em.createQuery("SELECT AVG(m.userFromId) FROM MessageEntity m");
-        System.out.println("Average userFromId: " + q2.getSingleResult());
-
-        // Retrieve all the Message objects from the database:
-        TypedQuery<MessageEntity> query = em.createQuery("SELECT m FROM MessageEntity m", MessageEntity.class);
-        List<MessageEntity> results = query.getResultList();
-
-        for (MessageEntity m : results)
-        {
-            System.out.println(m);
-        }
-
-        // Close the database connection:
-        em.close();
-        emf.close();
-    }
 
     private void updateListModel()
     {

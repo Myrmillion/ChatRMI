@@ -16,6 +16,8 @@ import java.rmi.RemoteException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,6 +33,8 @@ public class ChatController
     {
         this.mapUserChattingWith = new HashMap<User, Pair<Chat_I, JChat>>();
         this.listWait = new ArrayList<User>();
+
+        testDB();
     }
 
     /*------------------------------*\
@@ -124,10 +128,10 @@ public class ChatController
         return (n.get() == 0); // 0: yes, 1: no, -1: no button clicked
     }
 
-    public void receiveMessage(Message message)
+    public void receiveMessage(User userFrom, Message message)
     {
         // Update the GUI
-        this.mapUserChattingWith.get(message.getUserFrom()).getValue1().updateGUI(message);
+        this.mapUserChattingWith.get(userFrom).getValue1().updateGUI(message);
 
         // TODO : Sauvegarder le message envoyé par message.getUserFrom() et reçu par nous (userLocal) dans la BDD !!
         // db.save(recvBy: userLocal, sentBy: message.getUserFrom(), message);
@@ -187,7 +191,7 @@ public class ChatController
     {
         try
         {
-            this.mapUserChattingWith.get(userTo).getValue0().setMessage(message);
+            this.mapUserChattingWith.get(userTo).getValue0().setMessage(this.userLocal, message);
 
             // TODO : Sauvegarder le message envoyé par nous (userLocal) et qui sera reçu par userRemote dans la BDD !!
             // db.save(recvBy: userRemote, sentBy: userLocal, message);
@@ -266,6 +270,11 @@ public class ChatController
 
         jFrameChat.setVisible(true);
         jFrameChat.toFront();
+    }
+
+    private void testDB()
+    {
+
     }
 
     /*------------------------------*\
