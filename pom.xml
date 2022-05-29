@@ -51,11 +51,6 @@
             <version>1.2</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>io.objectbox</groupId>
-            <artifactId>objectbox-java</artifactId>
-            <version>3.1.2</version>
-        </dependency>
     </dependencies>
 
 
