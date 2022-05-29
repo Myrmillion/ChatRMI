@@ -20,12 +20,12 @@ public class JChat extends Box
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JChat(User userLocal, String firstMessage, Chat_I chatRemote)
+    public JChat(User userLocal, User userRemote, String firstMessage)
     {
         super(BoxLayout.Y_AXIS);
 
         this.userLocal = userLocal;
-        this.chatRemote = chatRemote;
+        this.userRemote = userRemote;
 
         this.chatController = ChatController.getInstance();
 
@@ -56,19 +56,16 @@ public class JChat extends Box
 	|*							Private Methods						    *|
 	\*------------------------------------------------------------------*/
 
-    private void disconnectChat()
+    private void disconnectChat(boolean needsRemoving)
     {
-        try
-        {
-            chatRemote.disconnectChat(this.userLocal);
+        this.chatController.closeChat(this.userRemote);
 
-            this.stopCallback = true; // very important !!!
-        }
-        catch (RemoteException ex)
+        if (needsRemoving)
         {
-            System.err.println("[JChat] : AncestorWindow-windowClosing : fail");
-            ex.printStackTrace();
+            this.chatController.removeUserFromUserChattingWith(this.userRemote);
         }
+
+        this.stopCallback = true; // very important !!!
     }
 
     private void displayFirstMessage(String firstMessage)
@@ -170,7 +167,7 @@ public class JChat extends Box
         {
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == 10)
+                if (e.getKeyCode() == 10) // 10 is the 'Enter' key code
                 {
                     send(e.isControlDown()); // whether Ctrl is hold message is being sent
                 }
@@ -199,15 +196,7 @@ public class JChat extends Box
                     {
                         if (!stopCallback)
                         {
-
-
-                            //TODO
-                            disconnectChat();
-                            chatController.removeUserFromChatting(source);
-
-
-
-
+                            disconnectChat(true);
 
                             // just in case, we never know, don't want to lose this piece of code :
                             // SwingUtilities.getWindowAncestor(source).dispatchEvent(new WindowEvent(SwingUtilities.getWindowAncestor(source), WindowEvent.WINDOW_CLOSING));
@@ -219,15 +208,7 @@ public class JChat extends Box
                 {
                     if (!stopCallback) // very important !!!
                     {
-
-
-
-                        //TODO
-                        disconnectChat();
-
-
-
-
+                        disconnectChat(false);
                     }
                 }));
             }
@@ -241,27 +222,20 @@ public class JChat extends Box
 
     private void send(boolean isCtrlHold)
     {
-        try
+        if (!this.jMessage.getText().isBlank())
         {
-            if (!this.jMessage.getText().isBlank())
-            {
-                String text = jMessage.getText();
-                boolean isImportant = jImportant.isSelected() || isCtrlHold;
+            String text = jMessage.getText();
+            boolean isImportant = jImportant.isSelected() || isCtrlHold;
 
-                // Sending message with chatRemote
-                this.chatRemote.setMessage(new Message(this.userLocal, text, isImportant));
-                insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
-                insertTextCustomized(this.jDisplayLocal, text, FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, isImportant, false);
+            // Sending message with chatController
+            this.chatController.sendMessage(new Message(this.userLocal, text, isImportant), this.userRemote);
 
-                // Resetting the message area
-                this.jMessage.setText("");
-                this.jMessage.requestFocusInWindow();
-            }
-        }
-        catch (RemoteException ex)
-        {
-            System.err.println("[JChat] : jSend-actionListener : fail");
-            ex.printStackTrace();
+            insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+            insertTextCustomized(this.jDisplayLocal, text, FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, isImportant, false);
+
+            // Resetting the message area
+            this.jMessage.setText("");
+            this.jMessage.requestFocusInWindow();
         }
     }
 
@@ -307,7 +281,7 @@ public class JChat extends Box
 
     // Inputs
     private final User userLocal;
-    private final Chat_I chatRemote;
+    private final User userRemote;
 
     // Tools
     private final ChatController chatController;

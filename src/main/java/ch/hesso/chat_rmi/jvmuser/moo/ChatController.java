@@ -32,7 +32,7 @@ public class ChatController
 
     public ChatController()
     {
-        this.mapConnectedUser = new HashMap<User, Pair<Chat_I, JChat>>();
+        this.mapUserChattingWith = new HashMap<User, Pair<Chat_I, JChat>>();
         this.listWait = new ArrayList<User>();
     }
 
@@ -54,13 +54,13 @@ public class ChatController
     |*							Public Methods 							*|
     \*------------------------------------------------------------------*/
 
-    public void messageReceived(Message message)
+    public void receiveMessage(Message message)
     {
         // TODO : Sauvegarder le message envoyé par message.getUserFrom() et reçu par nous (userLocal) dans la BDD !!!!
         // db.save(recvBy: userLocal, sentBy: message.getUserFrom(), message);
 
         // Update the GUI
-        this.mapConnectedUser.entrySet().stream().parallel()//
+        this.mapUserChattingWith.entrySet().stream().parallel()//
                 .filter(entry -> entry.getKey().equals(message.getUserFrom()))//
                 .map(Map.Entry::getValue)//
                 .map(Pair::getValue1)//
@@ -70,7 +70,7 @@ public class ChatController
 
     public void messageSent(JChat jChat)
     {
-        User userRemote = this.mapConnectedUser.entrySet().stream().parallel()//
+        User userRemote = this.mapUserChattingWith.entrySet().stream().parallel()//
                 .filter(entry -> entry.getValue().getValue1().equals(jChat))//
                 .map(Map.Entry::getKey)//
                 .findFirst()//
@@ -101,24 +101,8 @@ public class ChatController
     \*------------------------------*/
 
     /*------------------*\
-    |*	     From       *|
+    |*	   Receiving    *|
     \*------------------*/
-
-    public void disconnectChat(User userFrom)
-    {
-        this.mapConnectedUser.entrySet().stream().parallel()//
-                .filter(entry -> entry.getKey().equals(userFrom))//
-                .findFirst().ifPresent(entry ->
-                {
-                    entry.getValue().getValue1().setStopCallback(true);
-
-                    // retrieve jChat Window Ancestor and dispose of it
-                    SwingUtilities.getWindowAncestor(entry.getValue().getValue1()).dispose();
-
-                    // remove disconnecting user from the map of connected users
-                    this.mapConnectedUser.remove(entry.getKey());
-                });
-    }
 
     public boolean acceptOrRefuseConnection(User userFrom)
     {
@@ -168,13 +152,26 @@ public class ChatController
         return (n.get() == 0); // 0: yes, 1: no, -1: no button clicked
     }
 
+    public void disconnectChat(User userFrom)
+    {
+        Pair<Chat_I, JChat> pair = this.mapUserChattingWith.remove(userFrom);
+
+        if (pair != null)
+        {
+            pair.getValue1().setStopCallback(true);
+
+            // retrieve jChat Window Ancestor and dispose of it
+            SwingUtilities.getWindowAncestor(pair.getValue1()).dispose();
+        }
+    }
+
     /*------------------*\
-    |*	     To         *|
+    |*	    Sending     *|
     \*------------------*/
 
     public void askConnection(User userTo)
     {
-        if (!this.mapConnectedUser.containsKey(userTo) && !this.listWait.contains(userTo))
+        if (!this.mapUserChattingWith.containsKey(userTo) && !this.listWait.contains(userTo))
         {
             this.listWait.add(userTo); // makes sure one cannot spam another with multiple connection requests
 
@@ -188,8 +185,8 @@ public class ChatController
                     {
                         String firstMessage = userTo + " has accepted to chat with you !";
 
-                        JChat jChat = new JChat(this.userLocal, firstMessage, chatRemote);
-                        this.mapConnectedUser.put(userTo, new Pair<Chat_I, JChat>(chatRemote, jChat));
+                        JChat jChat = new JChat(this.userLocal, userTo, firstMessage);
+                        this.mapUserChattingWith.put(userTo, new Pair<Chat_I, JChat>(chatRemote, jChat));
 
                         new JFrameChat(jChat, userLocal.toString(), userTo.toString());
                     }
@@ -202,6 +199,32 @@ public class ChatController
 
                 this.listWait.remove(userTo); // makes sure one can send a new connection request now
             }).start();
+        }
+    }
+
+    public void sendMessage(Message message, User userTo)
+    {
+        try
+        {
+            this.mapUserChattingWith.get(userTo).getValue0().setMessage(message);
+        }
+        catch (RemoteException ex)
+        {
+            System.err.println("[JChat] : jSend-actionListener : fail");
+            ex.printStackTrace();
+        }
+    }
+
+    public void closeChat(User userTo)
+    {
+        try
+        {
+            this.mapUserChattingWith.get(userTo).getValue0().disconnectChat(this.userLocal); // getValue0() -> Chat_I
+        }
+        catch (RemoteException ex)
+        {
+            System.err.println("[ChatController] : closeChat : fail");
+            ex.printStackTrace();
         }
     }
 
@@ -236,19 +259,15 @@ public class ChatController
         }
     }
 
-    public void removeUserFromChatting(JChat jChat)
+    public void removeUserFromUserChattingWith(User user)
     {
-        this.mapConnectedUser.entrySet().stream().parallel()//
-                .filter(entry -> entry.getValue().getValue1().equals(jChat))//
-                .findFirst()//
-                .map(Map.Entry::getKey)//
-                .ifPresent(this.mapConnectedUser::remove);
+        this.mapUserChattingWith.remove(user);
     }
 
     public List<User> getListAvailableUsers() throws RemoteException
     {
         return this.registry.getListUser().stream().parallel().//
-                filter(userAvailable -> !userAvailable.equals(this.userLocal) && !this.mapConnectedUser.containsKey(userAvailable)).//
+                filter(userAvailable -> !userAvailable.equals(this.userLocal) && !this.mapUserChattingWith.containsKey(userAvailable)).//
                 toList();
     }
 
@@ -261,7 +280,7 @@ public class ChatController
     \*------------------------------*/
 
     /*------------------*\
-    |*	     From       *|
+    |*	   Receiving    *|
     \*------------------*/
 
     private void acceptRequestedConnection(User userFrom)
@@ -271,8 +290,8 @@ public class ChatController
             String firstMessage = "You accepted to chat with " + userFrom + " !";
 
             Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userFrom.getRmiURL());
-            JChat jChat = new JChat(this.userLocal, firstMessage, chatRemote);
-            this.mapConnectedUser.put(userFrom, new Pair<Chat_I, JChat>(chatRemote, jChat));
+            JChat jChat = new JChat(this.userLocal, userFrom, firstMessage);
+            this.mapUserChattingWith.put(userFrom, new Pair<Chat_I, JChat>(chatRemote, jChat));
 
             new JFrameChat(jChat, this.userLocal.toString(), userFrom.toString());
         }
@@ -284,7 +303,7 @@ public class ChatController
     }
 
     /*------------------*\
-    |*	      To        *|
+    |*	    Sending     *|
     \*------------------*/
 
     private void shareChat()
@@ -314,7 +333,7 @@ public class ChatController
     private Registry_I registry;
     private KeyPair keyPair;
 
-    private final HashMap<User, Pair<Chat_I, JChat>> mapConnectedUser;
+    private final HashMap<User, Pair<Chat_I, JChat>> mapUserChattingWith;
     private final List<User> listWait;
 
     private JMain parentFrame;

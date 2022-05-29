@@ -1,11 +1,6 @@
 package ch.hesso.chat_rmi.jvmuser.moo;
 
-import ch.hesso.chat_rmi.SettingsRMI;
-
-import javax.swing.*;
-import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Chat implements Chat_I
 {
@@ -32,7 +27,7 @@ public class Chat implements Chat_I
     @Override
     public void setMessage(Message message) throws RemoteException
     {
-        this.chatController.messageReceived(message);
+        this.chatController.receiveMessage(message);
     }
 
     @Override
