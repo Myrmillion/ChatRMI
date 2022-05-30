@@ -49,8 +49,10 @@ public class ChatController
         /// DEPUIS LE MENU MAVEN EN HAUT À DROITE !!
         ///
         /// ----------------------------------------
-
+        ///
         this.box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
+        ///
+        /// ----------------------------------------
     }
 
     /*------------------------------*\
