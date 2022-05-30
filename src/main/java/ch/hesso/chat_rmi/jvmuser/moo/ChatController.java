@@ -158,10 +158,6 @@ public class ChatController
 
         // Add this message information in the DB
         this.box.put(new MessageEntity(userFrom, userLocal, message));
-
-        System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
-
-        System.out.println("[msg received added]");
     }
 
     public void disconnectChat(User userFrom)
@@ -183,11 +179,8 @@ public class ChatController
 
     public void askConnection(User userTo)
     {
-        System.out.println("11111");
         if (!this.mapUserChattingWith.containsKey(userTo) && !this.listWait.contains(userTo))
         {
-            System.out.println("22222");
-
             this.listWait.add(userTo); // makes sure one cannot spam another with multiple connection requests
 
             new Thread(() ->
@@ -196,12 +189,8 @@ public class ChatController
                 {
                     Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userTo.getRmiURL());
 
-                    System.out.println("3333");
-
                     if (chatRemote.askConnection(this.userLocal)) // [CONNECTION ACCEPTED]
                     {
-                        System.out.println("4444");
-
                         String firstMessage = userTo + " has accepted to chat with you !";
 
                         JChat jChat = new JChat(this.userLocal, userTo, firstMessage);
@@ -232,8 +221,6 @@ public class ChatController
             this.box.put(new MessageEntity(userLocal, userTo, message));
 
             System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
-
-            System.out.println("[msg sent added]");
         }
         catch (RemoteException ex)
         {
@@ -288,11 +275,7 @@ public class ChatController
 
     public void removeUserFromUserChattingWith(User user)
     {
-        System.out.println("test ?");
-
         this.mapUserChattingWith.remove(user);
-
-        System.out.println("count = " + this.mapUserChattingWith.size());
     }
 
     public List<User> getListAvailableUsers() throws RemoteException
