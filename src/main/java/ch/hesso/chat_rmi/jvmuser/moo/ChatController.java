@@ -41,7 +41,8 @@ public class ChatController
         ///       !!!!!!    WARNING    !!!!!!
         /// ----------------------------------------
         ///
-        /// POUR POUVOIR IMPORTER MYOBJECTBOX
+        /// POUR POUVOIR IMPORTER MYOBJECTBOX ET
+        /// UTILISER OBJECTBOX ET QUE CA FONCTIONNE
         /// IL FAUT IMPERATIVEMENT LANCER :
         ///
         /// `mvn clean compile`
