@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="bilat_Tools_rmi">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/bilat_Tools_rmi.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

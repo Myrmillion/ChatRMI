@@ -1,127 +1,77 @@
 package ch.hesso.chat_rmi.jvmuser.db;
 
 import ch.hesso.chat_rmi.jvmuser.moo.Message;
+import ch.hesso.chat_rmi.jvmuser.moo.User;
+import io.objectbox.annotation.Convert;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
+import io.objectbox.annotation.Index;
+import io.objectbox.converter.PropertyConverter;
 
-//@Entity
-//public class MessageEntity {
-//
-//    @Id
-//    public long id;
-//
-//    public Message message;
-//    public String comment;
-//    public Date date;
-//
-//    public Note(long id, String text, String comment, Date date) {
-//        this.id = id;
-//        this.text = text;
-//        this.comment = comment;
-//        this.date = date;
-//    }
-//
-//    public Note() {
-//    }
-//}
+import java.util.Date;
 
+@Entity
+public class MessageEntity
+{
+    @Id
+    public long id;
 
-//package ch.hesso.chat_rmi.jvmuser.db;
-//
-//import javax.persistence.*;
-//import java.io.Serializable;
-//
-//@Entity
-//public class MessageEntity implements Serializable
-//{
-//    private static final long serialVersionUID = 1L;
-//
-//    @Id
-//    @GeneratedValue
-//    private long id;
-//    private int userFromId;
-//    private int userToId;
-//    private String message;
-//    private String date;
-//    private String time;
-//
-//    public MessageEntity()
-//    {
-//    }
-//
-//    public MessageEntity(int userFromId, int userToId, String message, String date, String time)
-//    {
-//        this.userFromId = userFromId;
-//        this.userToId = userToId;
-//        this.message = message;
-//        this.date = date;
-//        this.time = time;
-//    }
-//
-//    public long getId()
-//    {
-//        return id;
-//    }
-//
-//    public void setId(long id)
-//    {
-//        this.id = id;
-//    }
-//
-//    public int getUserFromId()
-//    {
-//        return userFromId;
-//    }
-//
-//    public void setUserFromId(int userFromId)
-//    {
-//        this.userFromId = userFromId;
-//    }
-//
-//    public int getUserToId()
-//    {
-//        return userToId;
-//    }
-//
-//    public void setUserToId(int userToId)
-//    {
-//        this.userToId = userToId;
-//    }
-//
-//    public String getMessage()
-//    {
-//        return message;
-//    }
-//
-//    public void setMessage(String message)
-//    {
-//        this.message = message;
-//    }
-//
-//    public String getDate()
-//    {
-//        return date;
-//    }
-//
-//    public void setDate(String date)
-//    {
-//        this.date = date;
-//    }
-//
-//    public String getTime()
-//    {
-//        return time;
-//    }
-//
-//    public void setTime(String time)
-//    {
-//        this.time = time;
-//    }
-//
-//    @Override
-//    public String toString()
-//    {
-//        return String.format("(%d, %d, %s)", this.userFromId, this.userToId, this.message);
-//    }
-//}
-//
+    @Index
+    @Convert(converter = UserConverter.class, dbType = String.class)
+    public User sender;
+
+    @Index
+    @Convert(converter = UserConverter.class, dbType = String.class)
+    public User receiver;
+
+    @Convert(converter = MessageConverter.class, dbType = String.class)
+    public Message message;
+
+    @Index
+    public Date date;
+
+    public MessageEntity(long id, User sender, User receiver, Message message, Date date)
+    {
+        this.id = id;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.message = message;
+        this.date = date;
+    }
+
+    public MessageEntity(User sender, User receiver, Message message)
+    {
+        this(0, sender, receiver, message, new Date());
+    }
+
+    public static class UserConverter implements PropertyConverter<User, String>
+    {
+        @Override
+        public User convertToEntityProperty(String string)
+        {
+            return User.getUser(string);
+        }
+
+        @Override
+        public String convertToDatabaseValue(User user)
+        {
+            return User.getString(user);
+        }
+    }
+
+    public static class MessageConverter implements PropertyConverter<Message, String>
+    {
+        @Override
+        public Message convertToEntityProperty(String string)
+        {
+            return Message.getMessage(string);
+        }
+
+        @Override
+        public String convertToDatabaseValue(Message message)
+        {
+            return Message.getString(message);
+        }
+    }
+
+}

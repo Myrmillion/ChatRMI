@@ -1,1 +1,1 @@
-java -cp ChatRMI.jar -DIS_MONO_PC=false -DIP_Chat=10.128.25.86 -DIP_Registry=10.128.25.86 ch.hesso.chat_rmi.jvmuser.use.UseJMain
+java -cp ChatRMI.jar -DIS_MONO_PC=false -DIP_Chat=127.0.0.1 -DIP_Registry=127.0.0.1 ch.hesso.chat_rmi.jvmuser.use.UseJMain

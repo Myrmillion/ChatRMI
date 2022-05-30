@@ -3,9 +3,14 @@ package ch.hesso.chat_rmi.jvmuser.moo;
 import ch.hearc.tools.rmi.Rmis;
 import ch.hesso.chat_rmi.SettingsRMI;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry_I;
+import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
+import ch.hesso.chat_rmi.jvmuser.db.MyObjectBox;
 import ch.hesso.chat_rmi.jvmuser.gui.JChat;
 import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.query.QueryBuilder;
 import org.javatuples.Pair;
 
 import javax.swing.*;
@@ -16,8 +21,6 @@ import java.rmi.RemoteException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,7 +37,20 @@ public class ChatController
         this.mapUserChattingWith = new HashMap<User, Pair<Chat_I, JChat>>();
         this.listWait = new ArrayList<User>();
 
-        testDB();
+        /// ----------------------------------------
+        ///       !!!!!!    WARNING    !!!!!!
+        /// ----------------------------------------
+        ///
+        /// POUR POUVOIR IMPORTER MYOBJECTBOX
+        /// IL FAUT IMPERATIVEMENT LANCER :
+        ///
+        /// `mvn clean compile`
+        ///
+        /// DEPUIS LE MENU MAVEN EN HAUT À DROITE !!
+        ///
+        /// ----------------------------------------
+
+        this.box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
     }
 
     /*------------------------------*\
@@ -56,11 +72,16 @@ public class ChatController
     \*------------------------------------------------------------------*/
 
 
-    public List<Message> retrieveSavedMessages()
+    public List<MessageEntity> retrieveSavedMessages(User userRemote)
     {
-        // TODO : récupérer les messages que l'on partage avec le remote user donné
+        System.out.println("Yoooooop");
 
-        return null;
+        System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
+
+        return this.box.getAll().stream().parallel()//
+                .filter(me -> (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
+                .sorted(Comparator.comparing(me -> me.date))//
+                .toList();
     }
 
     /*------------------------------*\
@@ -133,8 +154,12 @@ public class ChatController
         // Update the GUI
         this.mapUserChattingWith.get(userFrom).getValue1().updateGUI(message);
 
-        // TODO : Sauvegarder le message envoyé par message.getUserFrom() et reçu par nous (userLocal) dans la BDD !!
-        // db.save(recvBy: userLocal, sentBy: message.getUserFrom(), message);
+        // Add this message information in the DB
+        this.box.put(new MessageEntity(userFrom, userLocal, message));
+
+        System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
+
+        System.out.println("[msg received added]");
     }
 
     public void disconnectChat(User userFrom)
@@ -156,8 +181,11 @@ public class ChatController
 
     public void askConnection(User userTo)
     {
+        System.out.println("11111");
         if (!this.mapUserChattingWith.containsKey(userTo) && !this.listWait.contains(userTo))
         {
+            System.out.println("22222");
+
             this.listWait.add(userTo); // makes sure one cannot spam another with multiple connection requests
 
             new Thread(() ->
@@ -166,8 +194,12 @@ public class ChatController
                 {
                     Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userTo.getRmiURL());
 
+                    System.out.println("3333");
+
                     if (chatRemote.askConnection(this.userLocal)) // [CONNECTION ACCEPTED]
                     {
+                        System.out.println("4444");
+
                         String firstMessage = userTo + " has accepted to chat with you !";
 
                         JChat jChat = new JChat(this.userLocal, userTo, firstMessage);
@@ -191,10 +223,15 @@ public class ChatController
     {
         try
         {
+            // Fetching the Chat_I of userTo and sending the message over the network
             this.mapUserChattingWith.get(userTo).getValue0().setMessage(this.userLocal, message);
 
-            // TODO : Sauvegarder le message envoyé par nous (userLocal) et qui sera reçu par userRemote dans la BDD !!
-            // db.save(recvBy: userRemote, sentBy: userLocal, message);
+            // Add this message information in the DB
+            this.box.put(new MessageEntity(userLocal, userTo, message));
+
+            System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
+
+            System.out.println("[msg sent added]");
         }
         catch (RemoteException ex)
         {
@@ -249,7 +286,11 @@ public class ChatController
 
     public void removeUserFromUserChattingWith(User user)
     {
+        System.out.println("test ?");
+
         this.mapUserChattingWith.remove(user);
+
+        System.out.println("count = " + this.mapUserChattingWith.size());
     }
 
     public List<User> getListAvailableUsers() throws RemoteException
@@ -270,11 +311,6 @@ public class ChatController
 
         jFrameChat.setVisible(true);
         jFrameChat.toFront();
-    }
-
-    private void testDB()
-    {
-
     }
 
     /*------------------------------*\
@@ -331,13 +367,13 @@ public class ChatController
     // Outputs
 
     // Tools
+    private Box<MessageEntity> box;
     private Chat chatLocal;
     private Registry_I registry;
     private KeyPair keyPair;
 
     private final HashMap<User, Pair<Chat_I, JChat>> mapUserChattingWith;
     private final List<User> listWait;
-
     private JMain parentFrame;
 
     /*------------------------------*\

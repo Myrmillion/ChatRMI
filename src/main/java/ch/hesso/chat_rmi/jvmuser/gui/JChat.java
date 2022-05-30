@@ -1,5 +1,6 @@
 package ch.hesso.chat_rmi.jvmuser.gui;
 
+import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
 import ch.hesso.chat_rmi.jvmuser.moo.*;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.*;
 
@@ -49,7 +50,10 @@ public class JChat extends Box
     public void updateGUI(Message message)
     {
         insertTextCustomized(this.jDisplayRemote, message.getText(), FONT_CHAT_SMALL, Color.WHITE, NICE_BLUE, message.isImportant(), false);
-        insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, message.isImportant(), false);
+        insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+
+        // Update the Scrolling
+        SwingUtilities.invokeLater(() -> this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum()));
     }
 
 	/*------------------------------------------------------------------*\
@@ -76,10 +80,24 @@ public class JChat extends Box
 
     private void displaySavedMessages()
     {
-        // TODO : À l'ouverture de JChat, on utilise le chatController pour aller récupérer les messages qu'on a avec
-        // TODO : le remote user et on les ajoute directement dans les JTextPane !
+        List<MessageEntity> listMessageEntity = this.chatController.retrieveSavedMessages(this.userRemote);
 
-        List<Message> listMessage = this.chatController.retrieveSavedMessages();
+        listMessageEntity.forEach(me ->
+        {
+            if (me.sender.equals(this.userLocal))
+            {
+                insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+                insertTextCustomized(this.jDisplayLocal, me.message.getText(), FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, me.message.isImportant(), false);
+            }
+            else
+            {
+                insertTextCustomized(this.jDisplayRemote, me.message.getText(), FONT_CHAT_SMALL, Color.WHITE, NICE_BLUE, me.message.isImportant(), false);
+                insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+            }
+
+            // Update the Scrolling
+            SwingUtilities.invokeLater(() -> this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum()));
+        });
     }
 
     private void insertTextCustomized(JTextPane jTextPane, String message, int fontSize, Color fontColor, Color backColor, boolean isImportant, boolean underlined)
@@ -114,11 +132,6 @@ public class JChat extends Box
         {
             e.printStackTrace();
         }
-
-        SwingUtilities.invokeLater(() ->
-        {
-            this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum());
-        });
     }
 
     /*------------------------------*\
@@ -232,6 +245,9 @@ public class JChat extends Box
 
             insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
             insertTextCustomized(this.jDisplayLocal, text, FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, isImportant, false);
+
+            // Update the Scrolling
+            SwingUtilities.invokeLater(() -> this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum()));
 
             // Resetting the message area
             this.jMessage.setText("");
