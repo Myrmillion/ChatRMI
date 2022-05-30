@@ -76,10 +76,6 @@ public class ChatController
 
     public List<MessageEntity> retrieveSavedMessages(User userRemote)
     {
-        System.out.println("Yoooooop");
-
-        System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
-
         return this.box.getAll().stream().parallel()//
                 .filter(me -> (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
                 .sorted(Comparator.comparing(me -> me.date))//
