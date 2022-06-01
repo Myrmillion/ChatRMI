@@ -11,6 +11,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.security.*;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 public class UseJMain4
@@ -110,12 +111,14 @@ public class UseJMain4
         String test = User.getString(user1.getPublic());
         System.out.println(test);
         PublicKey pk1 = User.getPublicKey(test);
+        System.out.println(Objects.equals(pk1, user1.getPublic()));
     }
 
     @Test
     public void resetDatabase() throws Exception {
         Box<MessageEntity> box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
         box.removeAll();
+
     }
 
 

@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Objects;
 
 public class User implements Serializable
 {
@@ -61,16 +62,11 @@ public class User implements Serializable
     }
 
     @Override
-    public boolean equals(Object obj2)
-    {
-        if (obj2 instanceof User)
-        {
-            return isEquals((User) obj2);
-        }
-        else
-        {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return username.equals(user.username) && Objects.equals(publicKey, user.publicKey);
     }
 
     @Override
