@@ -28,7 +28,11 @@ public class JMain extends Box
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JMain()
+    public JMain() {
+        this("Anon", "Ymous".toCharArray());
+    }
+
+    public JMain(String username, char[] password)
     {
         super(BoxLayout.Y_AXIS);
 
@@ -40,6 +44,7 @@ public class JMain extends Box
         appearance();
 
         SwingUtilities.invokeLater(() -> this.chatController.setParentFrame(this));
+        login(username, password);
     }
 
 	/*------------------------------------------------------------------*\
@@ -74,24 +79,12 @@ public class JMain extends Box
 
     private void geometry()
     {
-        this.jAuthenticate = new JLabel("Authentication");
-        this.jUsername = new JTextField();
-        this.jPassword = new JPasswordField();
-        this.jCreate = new JButton("Create");
         this.jLabelChoice = new JLabel("Choose a user to chat with");
         this.jAvailableUsers = new JList<User>(this.listAvailableUsers);
         this.jResynchronize = new JButton("Re-Synchronize");
         this.jAskChat = new JButton("> ASK FOR A CHAT <");
 
         add(createVerticalGlue());
-        add(new JCenterH(this.jAuthenticate));
-        add(createVerticalStrut(STRUT_SMALL_SIZE));
-        add(new JCenterH(this.jUsername));
-        add(createVerticalStrut(STRUT_SMALL_SIZE));
-        add(new JCenterH(this.jPassword));
-        add(createVerticalStrut(STRUT_SMALL_SIZE));
-        add(new JCenterH(this.jCreate));
-        add(createVerticalStrut(STRUT_BIG_SIZE));
         add(new JCenterH(this.jLabelChoice));
         add(createVerticalStrut(STRUT_SMALL_SIZE));
         add(new JCenterH(this.jAvailableUsers));
@@ -104,43 +97,6 @@ public class JMain extends Box
 
     private void control()
     {
-        // Create (Button)
-        jCreate.addActionListener(e ->
-        {
-            if (!this.jUsername.getText().isEmpty())
-            {
-                this.jAuthenticate.setEnabled(false);
-                this.jUsername.setEnabled(false);
-                this.jPassword.setEnabled(false);
-                this.jCreate.setEnabled(false);
-
-                this.jLabelChoice.setEnabled(true);
-                this.jAvailableUsers.setEnabled(true);
-                this.jResynchronize.setEnabled(true);
-
-                try
-                {
-                    this.chatController.prepareRMI(this.jUsername.getText());
-                }
-                catch (RemoteException | MalformedURLException | NoSuchAlgorithmException ex)
-                {
-                    System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
-                    System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
-                    ex.printStackTrace();
-
-                    this.jUsername.setEnabled(true);
-                    this.jCreate.setEnabled(true);
-                    this.jResynchronize.setEnabled(false);
-                }
-
-                updateListModel();
-            }
-            else
-            {
-                this.jUsername.requestFocusInWindow();
-            }
-        });
-
         // Select Available User (JList<User>)
         jAvailableUsers.addListSelectionListener(e ->
         {
@@ -190,30 +146,6 @@ public class JMain extends Box
 
     private void appearance()
     {
-        // Labels
-        this.jAuthenticate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
-        this.jLabelChoice.setEnabled(false);
-        this.jLabelChoice.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
-
-        // Username (JTextField)
-        this.jUsername.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, FONT_TEXT_FIELD_SIZE));
-        Utils.promptToText(this.jUsername, "Username");
-        JComponents.setHeight(this.jUsername, 50);
-        JComponents.setWidth(this.jUsername, 400);
-        this.jUsername.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // Password (JPasswordField)
-        this.jPassword.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, FONT_TEXT_FIELD_SIZE));
-        Utils.promptToText(this.jPassword, "Password");
-        JComponents.setHeight(this.jPassword, 50);
-        JComponents.setWidth(this.jPassword, 400);
-        this.jPassword.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // Create (Button)
-        this.jCreate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_BUTTON_SIZE));
-        JComponents.setHeight(this.jCreate, 50);
-        JComponents.setWidth(this.jCreate, 250);
-
         // AvailableUsers (JList<User>)
         this.jAvailableUsers.setEnabled(false);
         this.jAvailableUsers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -235,6 +167,27 @@ public class JMain extends Box
         JComponents.setWidth(this.jAskChat, 250);
     }
 
+    private void login(String username, char[] password) {
+        this.jLabelChoice.setEnabled(true);
+        this.jAvailableUsers.setEnabled(true);
+        this.jResynchronize.setEnabled(true);
+
+        try
+        {
+            this.chatController.prepareRMI(username, password);
+        }
+        catch (Exception ex)
+        {
+            System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
+            System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
+            ex.printStackTrace();
+
+            this.jResynchronize.setEnabled(false);
+        }
+
+        updateListModel();
+    }
+
 	/*------------------------------------------------------------------*\
 	|*							Public Attributes						*|
 	\*------------------------------------------------------------------*/
@@ -244,11 +197,6 @@ public class JMain extends Box
     // Tools
     private final ChatController chatController;
     private final DefaultListModel<User> listAvailableUsers;
-
-    private JLabel jAuthenticate;
-    private JTextField jUsername;
-    private JPasswordField jPassword;
-    private JButton jCreate;
 
     private JLabel jLabelChoice;
     private JList<User> jAvailableUsers;

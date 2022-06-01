@@ -8,6 +8,7 @@ import ch.hesso.chat_rmi.jvmuser.db.MyObjectBox;
 import ch.hesso.chat_rmi.jvmuser.gui.JChat;
 import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
+import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.query.QueryBuilder;
@@ -18,10 +19,7 @@ import javax.swing.Timer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.security.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -248,12 +246,11 @@ public class ChatController
     |*	     Utils      *|
     \*------------------*/
 
-    public void prepareRMI(String username) throws MalformedURLException, RemoteException, NoSuchAlgorithmException
-    {
+    public void prepareRMI(String username, char[] password) throws MalformedURLException, RemoteException, GeneralSecurityException {
         // Generate public and private key for this user
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
-        this.keyPair = generator.generateKeyPair();
+        this.keyPair = CryptoHelper.getKeyPair(username, password);
 
         // Create the local user and the local chat
         this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username + (new Date()).getTime()), this.keyPair.getPublic()); // time guarantee unicity if users with same name
