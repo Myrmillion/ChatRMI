@@ -1,23 +1,19 @@
 package ch.hesso.chat_rmi.jvmuser.gui;
 
 import ch.hesso.chat_rmi.SettingsRMI;
-import ch.hesso.chat_rmi.jvmuser.gui.tools.*;
-import ch.hesso.chat_rmi.jvmuser.moo.User;
+import ch.hesso.chat_rmi.jvmuser.gui.tools.AncestorAdapter;
+import ch.hesso.chat_rmi.jvmuser.gui.tools.JCenterH;
+import ch.hesso.chat_rmi.jvmuser.gui.tools.JComponents;
+import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
 import ch.hesso.chat_rmi.jvmuser.moo.ChatController;
-import jdk.jshell.execution.Util;
+import ch.hesso.chat_rmi.jvmuser.moo.User;
 
-import java.util.*;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.MalformedURLException;
 import java.rmi.RemoteException;
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -55,14 +51,28 @@ public class JMain extends Box {
 	|*							Private Methods						    *|
 	\*------------------------------------------------------------------*/
 
-    private void updateListModel() {
-        this.listAvailableUsers.clear();
+    private void updateListModel()
+    {
 
-        try {
-            for (User user : this.chatController.getListAvailableUsers()) {
+
+        try
+        {
+            if (this.chatController.getListAvailableUsers().size() == this.listAvailableUsers.size()) {
+                for (int i = 0; i < this.listAvailableUsers.size(); i++) {
+                    if (this.chatController.getListAvailableUsers().get(i).isEquals(this.listAvailableUsers.get(i))) {
+                        return;
+                    }
+                }
+            }
+            this.listAvailableUsers.clear();
+
+            for (User user : this.chatController.getListAvailableUsers())
+            {
                 this.listAvailableUsers.addElement(user);
             }
-        } catch (RemoteException e) {
+        }
+        catch (RemoteException e)
+        {
             System.err.println("[JMain] : updateListModel : fail");
             e.printStackTrace();
         }
@@ -76,18 +86,17 @@ public class JMain extends Box {
     {
         this.jLabelChoice = new JLabel("Choose a user to chat with");
         this.jAvailableUsers = new JList<User>(this.listAvailableUsers);
-        this.jResynchronize = new JButton("Re-Synchronize");
         this.jAskChat = new JButton("> ASK FOR A CHAT <");
+        this.jDisconnect = new JButton("Disconnect");
 
         add(createVerticalGlue());
         add(new JCenterH(this.jLabelChoice));
         add(createVerticalStrut(STRUT_SMALL_SIZE));
         add(new JCenterH(this.jAvailableUsers));
-        add(createVerticalStrut(STRUT_SMALL_SIZE));
-        add(new JCenterH(this.jResynchronize));
         add(createVerticalStrut(STRUT_BIG_SIZE));
         add(new JCenterH(this.jAskChat));
         add(createVerticalGlue());
+        add(new JCenterH(this.jDisconnect));
     }
 
     private void control()
@@ -97,9 +106,6 @@ public class JMain extends Box {
         {
             this.jAskChat.setEnabled(!jAvailableUsers.isSelectionEmpty());
         });
-
-        // Resynchronize (Button)
-        jResynchronize.addActionListener(e -> updateListModel());
 
         // Connect (Button)
         jAskChat.addActionListener(e ->
@@ -118,9 +124,13 @@ public class JMain extends Box {
                 ((JFrame) SwingUtilities.getWindowAncestor(source)).setDefaultCloseOperation(EXIT_ON_CLOSE);
 
                 // Ancestor Window "closed" behaviour (simply when dispose is called upon the window)
-                SwingUtilities.getWindowAncestor(source).addWindowListener(new WindowAdapter() {
-                    public void windowClosing(WindowEvent e) {
-                        try {
+                SwingUtilities.getWindowAncestor(source).addWindowListener(new WindowAdapter()
+                {
+                    public void windowClosing(WindowEvent e)
+                    {
+                        try
+                        {
+                            updateInterval.stop();
                             chatController.removeLocalUserFromRegistry();
                         } catch (RemoteException ex) {
                             System.err.println("[JMain] : AncestorWindow-windowClosing : fail");
@@ -130,6 +140,26 @@ public class JMain extends Box {
                 });
             }
         });
+
+        jDisconnect.addActionListener(e -> {
+            try
+            {
+                updateInterval.stop();
+                chatController.removeLocalUserFromRegistry();
+            }
+            catch (RemoteException ex)
+            {
+                System.err.println("[JMain] : AncestorWindow-windowClosing : fail");
+                ex.printStackTrace();
+            }
+            JFrameChat.mainJFrame.changePage(new JLogin());
+        });
+
+        updateInterval = new Timer(1000, e -> {
+            updateListModel();
+        });
+        updateInterval.start();
+
     }
 
     private void appearance() {
@@ -144,12 +174,6 @@ public class JMain extends Box {
         JComponents.setHeight(this.jAvailableUsers, 100);
         JComponents.setWidth(this.jAvailableUsers, 400);
 
-        // Resynchronize (Button)
-        this.jResynchronize.setEnabled(false);
-        this.jResynchronize.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_BUTTON_SIZE));
-        JComponents.setHeight(this.jResynchronize, 50);
-        JComponents.setWidth(this.jResynchronize, 250);
-
         // Connect (Button)
         this.jAskChat.setEnabled(false);
         this.jAskChat.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_BUTTON_SIZE));
@@ -161,7 +185,6 @@ public class JMain extends Box {
     {
         this.jLabelChoice.setEnabled(true);
         this.jAvailableUsers.setEnabled(true);
-        this.jResynchronize.setEnabled(true);
 
         try
         {
@@ -172,8 +195,6 @@ public class JMain extends Box {
             System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
             System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
             ex.printStackTrace();
-
-            this.jResynchronize.setEnabled(false);
         }
 
         updateListModel();
@@ -191,9 +212,11 @@ public class JMain extends Box {
 
     private JLabel jLabelChoice;
     private JList<User> jAvailableUsers;
-    private JButton jResynchronize;
 
     private JButton jAskChat;
+    private JButton jDisconnect;
+
+    private Timer updateInterval;
 
     /*------------------------------*\
     |*			  Static		   	*|

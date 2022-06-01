@@ -74,11 +74,11 @@ public class UseJMain4
         KeyPair user1 = generator.generateKeyPair();
         KeyPair user2 = generator.generateKeyPair();
 
-        SecretKey secretKey = Sendable.generateKey();
-        byte[] encrypted = Sendable.encryptRSA(secretKey, user2.getPublic());
+        SecretKey secretKey = CryptoHelper.generateKey();
+        byte[] encrypted = CryptoHelper.encryptRSA(secretKey, user2.getPublic());
         System.out.println(encrypted.length);
 
-        SecretKey secretKey1 = Sendable.decryptRSA(encrypted, user2.getPrivate());
+        SecretKey secretKey1 = CryptoHelper.decryptRSA(encrypted, user2.getPrivate());
         System.out.println(secretKey.hashCode());
         System.out.println(secretKey1.hashCode());
     }
