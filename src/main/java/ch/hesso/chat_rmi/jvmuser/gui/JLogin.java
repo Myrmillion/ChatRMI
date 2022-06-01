@@ -22,7 +22,7 @@ public class JLogin extends Box {
         this.jAuthenticate = new JLabel("Authentication");
         this.jUsername = new JTextField();
         this.jPassword = new JPasswordField();
-        this.jLogin = new JButton("Create");
+        this.jLogin = new JButton("Connect");
 
         add(createVerticalGlue());
         add(new JCenterH(this.jAuthenticate));

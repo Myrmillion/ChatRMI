@@ -28,7 +28,8 @@ public class JMain extends Box
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JMain() {
+    public JMain()
+    {
         this("Anon", "Ymous".toCharArray());
     }
 
@@ -146,6 +147,9 @@ public class JMain extends Box
 
     private void appearance()
     {
+        // Labels
+        this.jLabelChoice.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
+
         // AvailableUsers (JList<User>)
         this.jAvailableUsers.setEnabled(false);
         this.jAvailableUsers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -167,7 +171,8 @@ public class JMain extends Box
         JComponents.setWidth(this.jAskChat, 250);
     }
 
-    private void login(String username, char[] password) {
+    private void login(String username, char[] password)
+    {
         this.jLabelChoice.setEnabled(true);
         this.jAvailableUsers.setEnabled(true);
         this.jResynchronize.setEnabled(true);
