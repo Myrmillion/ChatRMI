@@ -31,7 +31,6 @@ replay_pid*
 objectbox-messages-db/
 objectbox-jni-windows-x64.dll
 objectbox-model.json
-objectbox-model.json.bak
 
 ### Maven ###
 target/

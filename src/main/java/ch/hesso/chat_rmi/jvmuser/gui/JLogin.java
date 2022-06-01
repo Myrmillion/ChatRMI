@@ -8,8 +8,10 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class JLogin extends Box {
-    public JLogin() {
+public class JLogin extends Box
+{
+    public JLogin()
+    {
         super(BoxLayout.Y_AXIS);
 
         geometry();
@@ -35,8 +37,10 @@ public class JLogin extends Box {
         add(createVerticalGlue());
     }
 
-    private void control() {
-        jLogin.addActionListener(e -> {
+    private void control()
+    {
+        jLogin.addActionListener(e ->
+        {
             login();
         });
 
@@ -53,11 +57,13 @@ public class JLogin extends Box {
     }
 
 
-    private void login() {
+    private void login()
+    {
         JFrameChat.mainJFrame.changePage(new JMain(jUsername.getText(), jPassword.getPassword()));
     }
 
-    private void appearance() {
+    private void appearance()
+    {
         // Labels
         this.jAuthenticate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
 
