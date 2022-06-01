@@ -39,7 +39,7 @@ public class MessageEntity
         this.message = message;
         this.date = date;
 
-        this.uniqueMessageID = String.join(" ", new String[]{sender.getUsername(),receiver.getUsername(),message.getText(),date.toString()});
+        this.uniqueMessageID = String.join(" ", new String[]{sender.getUsername(), receiver.getUsername(), message.getText(), date.toString()});
     }
 
     public MessageEntity(User sender, User receiver, Message message)

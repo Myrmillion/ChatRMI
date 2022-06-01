@@ -4,39 +4,39 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "1:6545806209829475618",
-      "lastPropertyId": "5:3634852381234542260",
+      "id": "1:5418426201553820467",
+      "lastPropertyId": "5:2732887677623214313",
       "name": "MessageEntity",
       "properties": [
         {
-          "id": "1:1193966067495837270",
+          "id": "1:7884140241292356315",
           "name": "id",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "2:6635130060245283965",
+          "id": "2:7917954167930667113",
           "name": "sender",
-          "indexId": "1:8698213054028370971",
+          "indexId": "1:7755164249835452219",
           "type": 9,
           "flags": 2048
         },
         {
-          "id": "3:7147115815079487368",
+          "id": "3:936492341061477186",
           "name": "receiver",
-          "indexId": "2:2594066375657714282",
+          "indexId": "2:8096435866951670885",
           "type": 9,
           "flags": 2048
         },
         {
-          "id": "4:787808679006401345",
+          "id": "4:4273754878673200714",
           "name": "message",
           "type": 9
         },
         {
-          "id": "5:3634852381234542260",
+          "id": "5:2732887677623214313",
           "name": "date",
-          "indexId": "3:5032197216018950259",
+          "indexId": "3:5142690969836296100",
           "type": 10,
           "flags": 8
         }
@@ -44,8 +44,8 @@
       "relations": []
     }
   ],
-  "lastEntityId": "1:6545806209829475618",
-  "lastIndexId": "3:5032197216018950259",
+  "lastEntityId": "1:5418426201553820467",
+  "lastIndexId": "3:5142690969836296100",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
