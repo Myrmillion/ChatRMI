@@ -121,6 +121,7 @@ public class JMain extends Box
                 try
                 {
                     this.chatController.prepareRMI(this.jUsername.getText());
+                    updateListModel();
                 }
                 catch (RemoteException | MalformedURLException | NoSuchAlgorithmException ex)
                 {
@@ -128,12 +129,15 @@ public class JMain extends Box
                     System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
                     ex.printStackTrace();
 
+                    this.jAuthenticate.setEnabled(true);
                     this.jUsername.setEnabled(true);
+                    this.jPassword.setEnabled(true);
                     this.jCreate.setEnabled(true);
+
+                    this.jLabelChoice.setEnabled(false);
+                    this.jAvailableUsers.setEnabled(false);
                     this.jResynchronize.setEnabled(false);
                 }
-
-                updateListModel();
             }
             else
             {
@@ -260,10 +264,10 @@ public class JMain extends Box
     |*			  Static		   	*|
     \*------------------------------*/
 
-    public static final int FONT_TITLE_SIZE = 22;
+    public static final int FONT_TITLE_SIZE = 24;
     public static final int FONT_TEXT_FIELD_SIZE = 20;
     public static final int FONT_BUTTON_SIZE = 14;
 
-    private final static int STRUT_SMALL_SIZE = 6;
+    private final static int STRUT_SMALL_SIZE = 4;
     private final static int STRUT_BIG_SIZE = 20;
 }

@@ -21,6 +21,7 @@ import java.rmi.RemoteException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -250,8 +251,10 @@ public class ChatController
         generator.initialize(2048);
         this.keyPair = generator.generateKeyPair();
 
+        PublicKey publicKey = this.keyPair.getPublic();
+
         // Create the local user and the local chat
-        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username + (new Date()).getTime()), this.keyPair.getPublic()); // time guarantee unicity if users with same name
+        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username, publicKey.getEncoded()), publicKey); // time guarantee unicity if users with same name
         this.chatLocal = new Chat();
 
         // Share the chatLocal on the local url (RMI)
