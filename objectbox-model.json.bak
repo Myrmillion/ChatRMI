@@ -5,7 +5,11 @@
   "entities": [
     {
       "id": "1:5418426201553820467",
+<<<<<<< HEAD
       "lastPropertyId": "5:2732887677623214313",
+=======
+      "lastPropertyId": "6:3962064391284252507",
+>>>>>>> master
       "name": "MessageEntity",
       "properties": [
         {
@@ -39,13 +43,27 @@
           "indexId": "3:5142690969836296100",
           "type": 10,
           "flags": 8
+<<<<<<< HEAD
+=======
+        },
+        {
+          "id": "6:3962064391284252507",
+          "name": "uniqueMessageID",
+          "indexId": "4:4431752519483737590",
+          "type": 9,
+          "flags": 34848
+>>>>>>> master
         }
       ],
       "relations": []
     }
   ],
   "lastEntityId": "1:5418426201553820467",
+<<<<<<< HEAD
   "lastIndexId": "3:5142690969836296100",
+=======
+  "lastIndexId": "4:4431752519483737590",
+>>>>>>> master
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

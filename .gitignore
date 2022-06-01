@@ -56,3 +56,5 @@ buildNumber.properties
 *.DS_Store
 
 *.log.*
+
+output/log/temp/

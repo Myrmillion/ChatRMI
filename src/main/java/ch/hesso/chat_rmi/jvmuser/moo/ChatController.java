@@ -8,6 +8,7 @@ import ch.hesso.chat_rmi.jvmuser.db.MyObjectBox;
 import ch.hesso.chat_rmi.jvmuser.gui.JChat;
 import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
+import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.query.QueryBuilder;
@@ -254,12 +255,11 @@ public class ChatController
     |*	     Utils      *|
     \*------------------*/
 
-    public void prepareRMI(String username) throws MalformedURLException, RemoteException, NoSuchAlgorithmException
-    {
+    public void prepareRMI(String username, char[] password) throws MalformedURLException, RemoteException, GeneralSecurityException {
         // Generate public and private key for this user
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
-        this.keyPair = generator.generateKeyPair();
+        this.keyPair = CryptoHelper.getKeyPair(username, password);
 
         // Get Public Key that will be used directly after
         PublicKey publicKey = this.keyPair.getPublic();
