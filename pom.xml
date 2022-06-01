@@ -15,6 +15,7 @@
         <objectboxVersion>3.1.0</objectboxVersion>
     </properties>
 
+
     <!-- https://mvnrepository.com/artifact/junit/junit -->
     <dependencies>
         <dependency>

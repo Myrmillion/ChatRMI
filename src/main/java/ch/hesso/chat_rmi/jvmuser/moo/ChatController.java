@@ -77,6 +77,13 @@ public class ChatController
 
     public List<MessageEntity> retrieveSavedMessages(User userRemote)
     {
+        System.out.println("LOAD MESSAGES");
+        this.box.getAll().forEach(me -> {
+            System.out.println(me.id);
+            System.out.println(me.message.getText());
+            System.out.println(me.date.toString());
+        });
+
         return this.box.getAll().stream().parallel()//
                 .filter(me -> (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
                 .sorted(Comparator.comparing(me -> me.date))//

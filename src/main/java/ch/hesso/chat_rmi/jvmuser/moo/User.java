@@ -50,7 +50,10 @@ public class User implements Serializable
         }
         else
         {
-            return (this.rmiURL.toString().equals(obj2.rmiURL.toString())) && (this.username.equals(obj2.username));
+//            return (this.rmiURL.toString().equals(obj2.rmiURL.toString())) && (this.username.equals(obj2.username));
+
+            //Pour tester
+            return (this.username.equals(obj2.username));
         }
     }
 

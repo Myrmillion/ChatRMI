@@ -12,7 +12,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <option name="objectbox.modelPath" value="C:\DEV\HES-SO\Semestre_2\ASAD\ChatRMI/objectbox-model.json" />
+        <option name="objectbox.modelPath" value="C:\Users\antoine.lestrade\Documents\Master\ASAD\ChatRMI/objectbox-model.json" />
         <processor name="io.objectbox.processor.ObjectBoxProcessorShim" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/io/objectbox/objectbox-processor/3.1.0/objectbox-processor-3.1.0.jar" />
@@ -39,7 +39,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="ChatRMI" options="-Aobjectbox.modelPath=C:\DEV\HES-SO\Semestre_2\ASAD\ChatRMI/objectbox-model.json" />
+      <module name="ChatRMI" options="-Aobjectbox.modelPath=C:\Users\antoine.lestrade\Documents\Master\ASAD\ChatRMI/objectbox-model.json" />
     </option>
   </component>
 </project>

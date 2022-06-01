@@ -22,15 +22,13 @@ import java.time.LocalTime;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-public class JMain extends Box
-{
+public class JMain extends Box {
 
 	/*------------------------------------------------------------------*\
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JMain()
-    {
+    public JMain() {
         super(BoxLayout.Y_AXIS);
 
         this.chatController = ChatController.getInstance();
@@ -51,19 +49,14 @@ public class JMain extends Box
 	|*							Private Methods						    *|
 	\*------------------------------------------------------------------*/
 
-    private void updateListModel()
-    {
+    private void updateListModel() {
         this.listAvailableUsers.clear();
 
-        try
-        {
-            for (User user : this.chatController.getListAvailableUsers())
-            {
+        try {
+            for (User user : this.chatController.getListAvailableUsers()) {
                 this.listAvailableUsers.addElement(user);
             }
-        }
-        catch (RemoteException e)
-        {
+        } catch (RemoteException e) {
             System.err.println("[JMain] : updateListModel : fail");
             e.printStackTrace();
         }
@@ -73,8 +66,7 @@ public class JMain extends Box
     |*	            GUI	         	*|
     \*------------------------------*/
 
-    private void geometry()
-    {
+    private void geometry() {
         this.jLabelUsername = new JLabel("Choose a username");
         this.jLabelChoice = new JLabel("Choose a user to chat with");
         this.jUsername = new JTextField();
@@ -100,13 +92,11 @@ public class JMain extends Box
         add(createVerticalGlue());
     }
 
-    private void control()
-    {
+    private void control() {
         // Create (Button)
         jCreate.addActionListener(e ->
         {
-            if (!this.jUsername.getText().isEmpty())
-            {
+            if (!this.jUsername.getText().isEmpty()) {
                 this.jLabelUsername.setEnabled(false);
                 this.jUsername.setEnabled(false);
                 this.jCreate.setEnabled(false);
@@ -115,12 +105,9 @@ public class JMain extends Box
                 this.jAvailableUsers.setEnabled(true);
                 this.jResynchronize.setEnabled(true);
 
-                try
-                {
+                try {
                     this.chatController.prepareRMI(this.jUsername.getText());
-                }
-                catch (RemoteException | MalformedURLException | NoSuchAlgorithmException ex)
-                {
+                } catch (RemoteException | MalformedURLException | NoSuchAlgorithmException ex) {
                     System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
                     System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
                     ex.printStackTrace();
@@ -131,9 +118,7 @@ public class JMain extends Box
                 }
 
                 updateListModel();
-            }
-            else
-            {
+            } else {
                 this.jUsername.requestFocusInWindow();
             }
         });
@@ -154,28 +139,21 @@ public class JMain extends Box
         });
 
         // Adding a listener to the Ancestor
-        addAncestorListener(new AncestorAdapter()
-        {
+        addAncestorListener(new AncestorAdapter() {
             // Called once the Ancestor is made visible (so we are sure it exists and is instantiated)
             @Override
-            public void ancestorAdded(AncestorEvent event)
-            {
+            public void ancestorAdded(AncestorEvent event) {
                 JMain source = (JMain) event.getSource();
 
                 // Ancestor JFrame's default close operation
                 ((JFrame) SwingUtilities.getWindowAncestor(source)).setDefaultCloseOperation(EXIT_ON_CLOSE);
 
                 // Ancestor Window "closed" behaviour (simply when dispose is called upon the window)
-                SwingUtilities.getWindowAncestor(source).addWindowListener(new WindowAdapter()
-                {
-                    public void windowClosing(WindowEvent e)
-                    {
-                        try
-                        {
+                SwingUtilities.getWindowAncestor(source).addWindowListener(new WindowAdapter() {
+                    public void windowClosing(WindowEvent e) {
+                        try {
                             chatController.removeLocalUserFromRegistry();
-                        }
-                        catch (RemoteException ex)
-                        {
+                        } catch (RemoteException ex) {
                             System.err.println("[JMain] : AncestorWindow-windowClosing : fail");
                             ex.printStackTrace();
                         }
@@ -185,8 +163,7 @@ public class JMain extends Box
         });
     }
 
-    private void appearance()
-    {
+    private void appearance() {
         // Labels
         this.jLabelUsername.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
         this.jLabelChoice.setEnabled(false);

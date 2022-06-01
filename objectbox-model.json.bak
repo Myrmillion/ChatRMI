@@ -1,0 +1,58 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:6545806209829475618",
+      "lastPropertyId": "5:3634852381234542260",
+      "name": "MessageEntity",
+      "properties": [
+        {
+          "id": "1:1193966067495837270",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6635130060245283965",
+          "name": "sender",
+          "indexId": "1:8698213054028370971",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "3:7147115815079487368",
+          "name": "receiver",
+          "indexId": "2:2594066375657714282",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "4:787808679006401345",
+          "name": "message",
+          "type": 9
+        },
+        {
+          "id": "5:3634852381234542260",
+          "name": "date",
+          "indexId": "3:5032197216018950259",
+          "type": 10,
+          "flags": 8
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "1:6545806209829475618",
+  "lastIndexId": "3:5032197216018950259",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}

@@ -2,10 +2,7 @@ package ch.hesso.chat_rmi.jvmuser.db;
 
 import ch.hesso.chat_rmi.jvmuser.moo.Message;
 import ch.hesso.chat_rmi.jvmuser.moo.User;
-import io.objectbox.annotation.Convert;
-import io.objectbox.annotation.Entity;
-import io.objectbox.annotation.Id;
-import io.objectbox.annotation.Index;
+import io.objectbox.annotation.*;
 import io.objectbox.converter.PropertyConverter;
 
 import java.util.Date;
@@ -30,18 +27,24 @@ public class MessageEntity
     @Index
     public Date date;
 
-    public MessageEntity(long id, User sender, User receiver, Message message, Date date)
+    @Index(type = IndexType.HASH)
+    @Unique(onConflict = ConflictStrategy.REPLACE)
+    public String uniqueMessageID;
+
+    public MessageEntity(long id, User sender, User receiver, Message message, Date date, String uniqueMessageID)
     {
         this.id = id;
         this.sender = sender;
         this.receiver = receiver;
         this.message = message;
         this.date = date;
+
+        this.uniqueMessageID = String.join(" ", new String[]{sender.getUsername(),receiver.getUsername(),message.getText(),date.toString()});
     }
 
     public MessageEntity(User sender, User receiver, Message message)
     {
-        this(0, sender, receiver, message, new Date());
+        this(0, sender, receiver, message, new Date(), "");
     }
 
     public static class UserConverter implements PropertyConverter<User, String>
