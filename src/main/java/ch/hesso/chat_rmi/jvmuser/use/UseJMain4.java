@@ -1,21 +1,15 @@
 package ch.hesso.chat_rmi.jvmuser.use;
 
+import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
+import ch.hesso.chat_rmi.jvmuser.db.MyObjectBox;
 import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
-import ch.hesso.chat_rmi.jvmuser.moo.Message;
-import ch.hesso.chat_rmi.jvmuser.moo.Sendable;
 import ch.hesso.chat_rmi.jvmuser.moo.User;
+import io.objectbox.Box;
 import org.junit.Test;
 
 import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
+import java.security.*;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -105,6 +99,23 @@ public class UseJMain4
         byte[] b3 = new byte[] {14,24,34};
         byte[] r = CryptoHelper.appendBytes(b1, b2, b3);
         System.out.println(Arrays.toString(r));
+    }
+
+    @Test
+    public void testConverter() throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        KeyPair user1 = generator.generateKeyPair();
+
+        String test = User.getString(user1.getPublic());
+        System.out.println(test);
+        PublicKey pk1 = User.getPublicKey(test);
+    }
+
+    @Test
+    public void resetDatabase() throws Exception {
+        Box<MessageEntity> box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
+        box.removeAll();
     }
 
 

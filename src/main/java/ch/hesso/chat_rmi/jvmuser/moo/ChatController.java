@@ -10,17 +10,16 @@ import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
 import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
 import io.objectbox.Box;
-import io.objectbox.BoxStore;
-import io.objectbox.query.QueryBuilder;
 import org.javatuples.Pair;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.security.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -80,12 +79,12 @@ public class ChatController
         this.box.getAll().forEach(me ->
         {
             System.out.println(me.id);
-            System.out.println(me.message.getText());
+            //System.out.println(me.message.getText());
             System.out.println(me.date.toString());
         });
 
         return this.box.getAll().stream().parallel()//
-                .filter(me -> (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
+                .filter(me -> me.sender != null && me.receiver != null && (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
                 .sorted(Comparator.comparing(me -> me.date))//
                 .toList();
     }
@@ -160,8 +159,9 @@ public class ChatController
         // Update the GUI
         this.mapUserChattingWith.get(userFrom).getValue1().updateGUI(message);
 
+
         // Add this message information in the DB
-        this.box.put(new MessageEntity(userFrom, userLocal, message));
+        this.box.put(new MessageEntity(userFrom, userLocal, new Sendable<Message>(message, userLocal)));
     }
 
     public PrivateKey getPrivateKey()
@@ -227,9 +227,9 @@ public class ChatController
             this.mapUserChattingWith.get(userTo).getValue0().setMessage(new Sendable<User>(this.userLocal, userTo), new Sendable<Message>(message, userTo));
 
             // Add this message information in the DB
-            this.box.put(new MessageEntity(userLocal, userTo, message));
+            this.box.put(new MessageEntity(userLocal, userTo, new Sendable<Message>(message, userLocal)));
 
-            System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
+            //System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
         }
         catch (RemoteException ex)
         {

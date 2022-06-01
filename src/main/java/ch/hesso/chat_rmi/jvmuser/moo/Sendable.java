@@ -2,14 +2,12 @@ package ch.hesso.chat_rmi.jvmuser.moo;
 
 import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
 
-import javax.crypto.*;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.swing.*;
-import java.io.*;
-import java.security.*;
+import java.io.Serializable;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Arrays;
-import java.util.Base64;
 
 public class Sendable<T extends Serializable> implements Serializable {
     public Sendable(T content, PublicKey publicKeyReceiver, PrivateKey privateKeySender) {
@@ -55,7 +53,22 @@ public class Sendable<T extends Serializable> implements Serializable {
         return null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Sendable<?> sendable = (Sendable<?>) o;
+        return Arrays.equals(content, sendable.content) && Arrays.equals(symmetricKey, sendable.symmetricKey) && Arrays.equals(initializationVector, sendable.initializationVector) && Arrays.equals(signature, sendable.signature);
+    }
 
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(content);
+        result = 31 * result + Arrays.hashCode(symmetricKey);
+        result = 31 * result + Arrays.hashCode(initializationVector);
+        result = 31 * result + Arrays.hashCode(signature);
+        return result;
+    }
 
     private byte[] content;
     private byte[] symmetricKey;

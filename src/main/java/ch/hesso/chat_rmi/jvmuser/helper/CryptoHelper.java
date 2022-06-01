@@ -9,7 +9,7 @@ import java.nio.charset.Charset;
 import java.security.*;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.Arrays;
-import java.util.Locale;
+import java.util.Base64;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -161,6 +161,24 @@ public class CryptoHelper {
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
         return iv;
+    }
+
+    public static Object StringToObject( String s ) throws IOException ,
+            ClassNotFoundException {
+        byte [] data = Base64.getDecoder().decode( s );
+        ObjectInputStream ois = new ObjectInputStream(
+                new ByteArrayInputStream(  data ) );
+        Object o  = ois.readObject();
+        ois.close();
+        return o;
+    }
+
+    public static String ObjectToString( Serializable o ) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream( baos );
+        oos.writeObject( o );
+        oos.close();
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
     
     private final static String AES_ALGORITHM = "AES/CBC/PKCS5Padding";
