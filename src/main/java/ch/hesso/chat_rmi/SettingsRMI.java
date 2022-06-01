@@ -184,7 +184,7 @@ public class SettingsRMI
 
     private static final int CHAT_RMI_PORT = Ports.PORT_RMI_DEFAUT; // 1099
 
-    public static RmiURL CHAT_RMI_URL(String CHAT_RMI_ID, byte[] encodedKey) // CHAT_RMI_ID is guaranteeing the unicity
+    public static RmiURL CHAT_RMI_URL(String username, byte[] encodedKey) // CHAT_RMI_ID is guaranteeing the unicity
     {
         StringBuilder macAddress = new StringBuilder("");
         StringBuilder hashedEncodedKey = new StringBuilder("");
@@ -208,7 +208,9 @@ public class SettingsRMI
             return null;
         }
 
-        return new RmiURL(CHAT_RMI_ID + "-" + macAddress + "-" + hashedEncodedKey, chatIP(), CHAT_RMI_PORT);
+        String CHAT_RMI_ID = username + "-" + macAddress + "-" + hashedEncodedKey;
+
+        return new RmiURL(CHAT_RMI_ID, chatIP(), CHAT_RMI_PORT);
     }
 
     /*------------------------------*\
