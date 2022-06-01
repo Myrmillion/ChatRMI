@@ -3,7 +3,10 @@ package ch.hesso.chat_rmi.jvmuser.moo;
 import ch.hearc.tools.rmi.RmiURL;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.PublicKey;
+import java.util.Arrays;
 
 public class User implements Serializable
 {
@@ -15,13 +18,14 @@ public class User implements Serializable
     {
         this.username = username;
         this.rmiURL = rmiURL;
-        this.publicKey = null;
+        //this.publicKey = null;
     }
 
-    public User(String username, RmiURL rmiURL, PublicKey publicKey) {
+    public User(String username, RmiURL rmiURL, PublicKey publicKey)
+    {
         this.username = username;
         this.rmiURL = rmiURL;
-        this.publicKey = null;
+        //this.publicKey = null;
     }
 
     /*------------------------------------------------------------------*\
@@ -63,18 +67,69 @@ public class User implements Serializable
         }
     }
 
+    @Override
+    public int hashCode()
+    {
+        return this.username.concat(this.rmiURL.toString()).hashCode();
+    }
+
     /*------------------------------*\
     |*				Get				*|
     \*------------------------------*/
 
+    public String getUsername()
+    {
+        return this.username;
+    }
+
     public RmiURL getRmiURL()
     {
-        return rmiURL;
+        return this.rmiURL;
+    }
+
+    /*------------------------------*\
+    |*			Converter			*|
+    \*------------------------------*/
+
+    public static User getUser(String string)
+    {
+        String[] tabSplit = string.split(",");
+        return new User(tabSplit[0], getRmiURL(tabSplit[1]));
+    }
+
+    public static String getString(User user)
+    {
+        return user.getUsername() + "," + getString(user.getRmiURL());
     }
 
     /*------------------------------------------------------------------*\
     |*							Private Methods						    *|
     \*------------------------------------------------------------------*/
+
+    /*------------------------------*\
+    |*			Converter			*|
+    \*------------------------------*/
+
+    private static RmiURL getRmiURL(String string)
+    {
+        try
+        {
+            String[] tabSplit = string.split(";");
+            return new RmiURL(tabSplit[0], InetAddress.getByName(tabSplit[1]), Integer.parseInt(tabSplit[2]));
+        }
+        catch (UnknownHostException e)
+        {
+            e.printStackTrace();
+            System.err.println("[User] : getRmiURL");
+            System.exit(0); // 0: ok, -1: ko
+            return null;
+        }
+    }
+
+    private static String getString(RmiURL rmiUrl)
+    {
+        return rmiUrl.getObjectId() + ";" + rmiUrl.getInetAdressName() + ";" + rmiUrl.getPort();
+    }
 
     /*------------------------------------------------------------------*\
     |*							Private Attributes						*|
@@ -87,6 +142,6 @@ public class User implements Serializable
     // Outputs
 
     // Tools
-    private final PublicKey publicKey;
+    //private final PublicKey publicKey;
 
 }

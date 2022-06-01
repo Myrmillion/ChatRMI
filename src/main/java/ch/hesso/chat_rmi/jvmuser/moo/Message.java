@@ -1,6 +1,7 @@
 package ch.hesso.chat_rmi.jvmuser.moo;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Message implements Serializable
 {
@@ -8,9 +9,8 @@ public class Message implements Serializable
     |*							Constructors							*|
     \*------------------------------------------------------------------*/
 
-    public Message(User userFrom, String text, boolean isImportant)
+    public Message(String text, boolean isImportant)
     {
-        this.userFrom = userFrom;
         this.text = text;
         this.isImportant = isImportant;
     }
@@ -20,16 +20,9 @@ public class Message implements Serializable
     |*							Public Methods 							*|
     \*------------------------------------------------------------------*/
 
-
-
     /*------------------------------*\
     |*				Get				*|
     \*------------------------------*/
-
-    public User getUserFrom()
-    {
-        return userFrom;
-    }
 
     public String getText()
     {
@@ -39,6 +32,21 @@ public class Message implements Serializable
     public boolean isImportant()
     {
         return isImportant;
+    }
+
+    /*------------------------------*\
+    |*			Converter			*|
+    \*------------------------------*/
+
+    public static Message getMessage(String string)
+    {
+        String[] tabSplit = string.split(",");
+        return new Message(tabSplit[0], Boolean.parseBoolean(tabSplit[1]));
+    }
+
+    public static String getString(Message message)
+    {
+        return message.getText() + "," + Boolean.toString(message.isImportant());
     }
 
     /*------------------------------------------------------------------*\
@@ -52,7 +60,6 @@ public class Message implements Serializable
     \*------------------------------------------------------------------*/
 
     // Inputs
-    private final User userFrom;
     private final String text;
     private final boolean isImportant;
 
