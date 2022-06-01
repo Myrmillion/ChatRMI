@@ -23,7 +23,6 @@ public class Chat implements Chat_I
         return askConnection(userFrom.decrypt(ChatController.getPrivateKey()));
     }
 
-    @Override
     public Boolean askConnection(User userFrom) throws RemoteException
     {
         return this.chatController.acceptOrRefuseConnection(userFrom);

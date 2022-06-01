@@ -4,7 +4,6 @@ import ch.hearc.tools.rmi.Rmis;
 import ch.hesso.chat_rmi.SettingsRMI;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry_I;
 import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
-import ch.hesso.chat_rmi.jvmuser.db.MyObjectBox;
 import ch.hesso.chat_rmi.jvmuser.gui.JChat;
 import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
@@ -51,8 +50,8 @@ public class ChatController
         /// DEPUIS LE MENU MAVEN EN HAUT À DROITE !!
         ///
         /// ----------------------------------------
-        ///
-        this.box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
+        //
+        // this.box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
         ///
         /// ----------------------------------------
     }
