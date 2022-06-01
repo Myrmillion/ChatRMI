@@ -4,6 +4,7 @@ import ch.hearc.tools.rmi.Rmis;
 import ch.hesso.chat_rmi.SettingsRMI;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry_I;
 import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
+import ch.hesso.chat_rmi.jvmuser.db.MyObjectBox;
 import ch.hesso.chat_rmi.jvmuser.gui.JChat;
 import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
@@ -51,7 +52,7 @@ public class ChatController
         ///
         /// ----------------------------------------
         //
-        // this.box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
+        this.box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
         ///
         /// ----------------------------------------
     }
@@ -157,8 +158,8 @@ public class ChatController
         this.box.put(new MessageEntity(userFrom, userLocal, message));
     }
 
-    public static PrivateKey getPrivateKey() {
-        return getInstance().keyPair.getPrivate();
+    public PrivateKey getPrivateKey() {
+        return keyPair.getPrivate();
     }
 
     public void disconnectChat(User userFrom)
@@ -216,7 +217,7 @@ public class ChatController
         try
         {
             // Fetching the Chat_I of userTo and sending the message over the network
-            this.mapUserChattingWith.get(userTo).getValue0().setMessage(this.userLocal, message);
+            this.mapUserChattingWith.get(userTo).getValue0().setMessage(new Sendable<User>(this.userLocal, userTo), new Sendable<Message>(message, userTo));
 
             // Add this message information in the DB
             this.box.put(new MessageEntity(userLocal, userTo, message));
@@ -234,7 +235,7 @@ public class ChatController
     {
         try
         {
-            this.mapUserChattingWith.get(userTo).getValue0().disconnectChat(this.userLocal); // getValue0() => Chat_I
+            this.mapUserChattingWith.get(userTo).getValue0().disconnectChat(new Sendable<User>(this.userLocal, userTo)); // getValue0() => Chat_I
         }
         catch (RemoteException ex)
         {
