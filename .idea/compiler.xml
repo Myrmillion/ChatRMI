@@ -6,9 +6,40 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="ChatRMI" />
         <module name="ChatRMI_COPY" />
       </profile>
+      <profile name="Annotation profile for ChatRMI" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <option name="objectbox.modelPath" value="C:\DEV\HES-SO\Semestre_2\ASAD\ChatRMI/objectbox-model.json" />
+        <processor name="io.objectbox.processor.ObjectBoxProcessorShim" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/io/objectbox/objectbox-processor/3.1.0/objectbox-processor-3.1.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/io/objectbox/objectbox-code-modifier/3.1.0/objectbox-code-modifier-3.1.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib-jdk8/1.4.20/kotlin-stdlib-jdk8-1.4.20.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib/1.4.20/kotlin-stdlib-1.4.20.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib-common/1.4.20/kotlin-stdlib-common-1.4.20.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/jetbrains/annotations/13.0/annotations-13.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib-jdk7/1.4.20/kotlin-stdlib-jdk7-1.4.20.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-reflect/1.4.20/kotlin-reflect-1.4.20.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/greenrobot/essentials/3.1.0/essentials-3.1.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/squareup/moshi/moshi/1.11.0/moshi-1.11.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/squareup/okio/okio/1.17.5/okio-1.17.5.jar" />
+          <entry name="$MAVEN_REPOSITORY$/io/objectbox/objectbox-java/3.1.0/objectbox-java-3.1.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/io/objectbox/objectbox-java-api/3.1.0/objectbox-java-api-3.1.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar" />
+          <entry name="$MAVEN_REPOSITORY$/io/objectbox/objectbox-generator/3.1.0/objectbox-generator-3.1.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/freemarker/freemarker/2.3.31/freemarker-2.3.31.jar" />
+          <entry name="$MAVEN_REPOSITORY$/net/ltgt/gradle/incap/incap/0.3/incap-0.3.jar" />
+        </processorPath>
+        <module name="ChatRMI" />
+      </profile>
     </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ChatRMI" options="-Aobjectbox.modelPath=C:\DEV\HES-SO\Semestre_2\ASAD\ChatRMI/objectbox-model.json" />
+    </option>
   </component>
 </project>

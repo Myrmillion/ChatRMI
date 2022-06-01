@@ -1,5 +1,6 @@
 package ch.hesso.chat_rmi.jvmuser.gui;
 
+import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
 import ch.hesso.chat_rmi.jvmuser.moo.*;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.*;
 
@@ -9,6 +10,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.rmi.RemoteException;
+import java.util.List;
 
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
@@ -19,12 +21,12 @@ public class JChat extends Box
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JChat(User userLocal, String firstMessage, Chat_I chatRemote)
+    public JChat(User userLocal, User userRemote, String firstMessage)
     {
         super(BoxLayout.Y_AXIS);
 
         this.userLocal = userLocal;
-        this.chatRemote = chatRemote;
+        this.userRemote = userRemote;
 
         this.chatController = ChatController.getInstance();
 
@@ -33,6 +35,7 @@ public class JChat extends Box
         appearance();
 
         displayFirstMessage(firstMessage);
+        displaySavedMessages();
     }
 
 	/*------------------------------------------------------------------*\
@@ -47,32 +50,54 @@ public class JChat extends Box
     public void updateGUI(Message message)
     {
         insertTextCustomized(this.jDisplayRemote, message.getText(), FONT_CHAT_SMALL, Color.WHITE, NICE_BLUE, message.isImportant(), false);
-        insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, message.isImportant(), false);
+        insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+
+        // Update the Scrolling
+        SwingUtilities.invokeLater(() -> this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum()));
     }
 
 	/*------------------------------------------------------------------*\
 	|*							Private Methods						    *|
 	\*------------------------------------------------------------------*/
 
-    private void disconnectChat()
+    private void disconnectChat(boolean needsRemoving)
     {
-        try
-        {
-            chatRemote.disconnectChat(this.userLocal);
+        this.chatController.closeChat(this.userRemote);
 
-            this.stopCallback = true; // very important !!!
-        }
-        catch (RemoteException ex)
+        if (needsRemoving)
         {
-            System.err.println("[JChat] : AncestorWindow-windowClosing : fail");
-            ex.printStackTrace();
+            this.chatController.removeUserFromUserChattingWith(this.userRemote);
         }
+
+        this.stopCallback = true; // very important !!!
     }
 
     private void displayFirstMessage(String firstMessage)
     {
         insertTextCustomized(this.jDisplayRemote, firstMessage, FONT_CHAT_BIG, NICE_BLUE, TRANSPARENT, false, true);
         insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_BIG, Color.WHITE, TRANSPARENT, false, true);
+    }
+
+    private void displaySavedMessages()
+    {
+        List<MessageEntity> listMessageEntity = this.chatController.retrieveSavedMessages(this.userRemote);
+
+        listMessageEntity.forEach(me ->
+        {
+            if (me.sender.equals(this.userLocal))
+            {
+                insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+                insertTextCustomized(this.jDisplayLocal, me.message.getText(), FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, me.message.isImportant(), false);
+            }
+            else
+            {
+                insertTextCustomized(this.jDisplayRemote, me.message.getText(), FONT_CHAT_SMALL, Color.WHITE, NICE_BLUE, me.message.isImportant(), false);
+                insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+            }
+
+            // Update the Scrolling
+            SwingUtilities.invokeLater(() -> this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum()));
+        });
     }
 
     private void insertTextCustomized(JTextPane jTextPane, String message, int fontSize, Color fontColor, Color backColor, boolean isImportant, boolean underlined)
@@ -107,11 +132,6 @@ public class JChat extends Box
         {
             e.printStackTrace();
         }
-
-        SwingUtilities.invokeLater(() ->
-        {
-            this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum());
-        });
     }
 
     /*------------------------------*\
@@ -160,7 +180,7 @@ public class JChat extends Box
         {
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == 10)
+                if (e.getKeyCode() == 10) // 10 is the 'Enter' key code
                 {
                     send(e.isControlDown()); // whether Ctrl is hold message is being sent
                 }
@@ -189,8 +209,7 @@ public class JChat extends Box
                     {
                         if (!stopCallback)
                         {
-                            disconnectChat();
-                            chatController.removeLocalUserFromCurrentChatting(source);
+                            disconnectChat(true);
 
                             // just in case, we never know, don't want to lose this piece of code :
                             // SwingUtilities.getWindowAncestor(source).dispatchEvent(new WindowEvent(SwingUtilities.getWindowAncestor(source), WindowEvent.WINDOW_CLOSING));
@@ -202,7 +221,7 @@ public class JChat extends Box
                 {
                     if (!stopCallback) // very important !!!
                     {
-                        disconnectChat();
+                        disconnectChat(false);
                     }
                 }));
             }
@@ -216,27 +235,23 @@ public class JChat extends Box
 
     private void send(boolean isCtrlHold)
     {
-        try
+        if (!this.jMessage.getText().isBlank())
         {
-            if (!this.jMessage.getText().isEmpty())
-            {
-                String text = jMessage.getText();
-                boolean isImportant = jImportant.isSelected() || isCtrlHold;
+            String text = jMessage.getText();
+            boolean isImportant = jImportant.isSelected() || isCtrlHold;
 
-                // Sending message with chatRemote
-                this.chatRemote.setMessage(new Message(this.userLocal, text, isImportant));
-                insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
-                insertTextCustomized(this.jDisplayLocal, text, FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, isImportant, false);
+            // Sending message with chatController
+            this.chatController.sendMessage(new Message(text, isImportant), this.userRemote);
 
-                // Resetting the message area
-                this.jMessage.setText("");
-                this.jMessage.requestFocusInWindow();
-            }
-        }
-        catch (RemoteException ex)
-        {
-            System.err.println("[JChat] : jSend-actionListener : fail");
-            ex.printStackTrace();
+            insertTextCustomized(this.jDisplayRemote, "", FONT_CHAT_SMALL, Color.WHITE, TRANSPARENT, false, false);
+            insertTextCustomized(this.jDisplayLocal, text, FONT_CHAT_SMALL, Color.WHITE, NICE_ORANGE, isImportant, false);
+
+            // Update the Scrolling
+            SwingUtilities.invokeLater(() -> this.jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum()));
+
+            // Resetting the message area
+            this.jMessage.setText("");
+            this.jMessage.requestFocusInWindow();
         }
     }
 
@@ -282,7 +297,7 @@ public class JChat extends Box
 
     // Inputs
     private final User userLocal;
-    private final Chat_I chatRemote;
+    private final User userRemote;
 
     // Tools
     private final ChatController chatController;

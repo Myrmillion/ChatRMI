@@ -3,10 +3,19 @@ package ch.hesso.chat_rmi.jvmuser.moo;
 import ch.hearc.tools.rmi.Rmis;
 import ch.hesso.chat_rmi.SettingsRMI;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry_I;
+import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
+import ch.hesso.chat_rmi.jvmuser.db.MyObjectBox;
 import ch.hesso.chat_rmi.jvmuser.gui.JChat;
+import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
+import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.query.QueryBuilder;
+import org.javatuples.Pair;
 
 import javax.swing.*;
+import javax.swing.Timer;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.security.KeyPair;
@@ -15,10 +24,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Singleton
- */
 public class ChatController
 {
 
@@ -28,7 +35,26 @@ public class ChatController
 
     public ChatController()
     {
-        this.listCurrentChatting = new ArrayList<Map.Entry<User, JChat>>();
+        this.mapUserChattingWith = new HashMap<User, Pair<Chat_I, JChat>>();
+        this.listWait = new ArrayList<User>();
+
+        /// ----------------------------------------
+        ///       !!!!!!    WARNING    !!!!!!
+        /// ----------------------------------------
+        ///
+        /// POUR POUVOIR IMPORTER MYOBJECTBOX ET
+        /// UTILISER OBJECTBOX ET QUE CA FONCTIONNE
+        /// IL FAUT IMPERATIVEMENT LANCER :
+        ///
+        /// `mvn clean compile`
+        ///
+        /// DEPUIS LE MENU MAVEN EN HAUT À DROITE !!
+        ///
+        /// ----------------------------------------
+        ///
+        this.box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
+        ///
+        /// ----------------------------------------
     }
 
     /*------------------------------*\
@@ -49,17 +75,178 @@ public class ChatController
     |*							Public Methods 							*|
     \*------------------------------------------------------------------*/
 
-    public void updateGUI(Message message)
+
+    public List<MessageEntity> retrieveSavedMessages(User userRemote)
     {
-        this.listCurrentChatting.stream().parallel()//
-                .filter(entry -> entry.getKey().equals(message.getUserFrom()))//
-                .map(Map.Entry::getValue)//
-                .findFirst().ifPresent(jChat -> jChat.updateGUI(message));
+        return this.box.getAll().stream().parallel()//
+                .filter(me -> (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
+                .sorted(Comparator.comparing(me -> me.date))//
+                .toList();
+    }
+
+    /*------------------------------*\
+    |*				Set				*|
+    \*------------------------------*/
+
+    public void setParentFrame(JMain parentFrame)
+    {
+        this.parentFrame = parentFrame;
     }
 
     /*------------------------------*\
     |*	            RMI	         	*|
     \*------------------------------*/
+
+    /*------------------*\
+    |*	   Receiving    *|
+    \*------------------*/
+
+    public boolean acceptOrRefuseConnection(User userFrom)
+    {
+        AtomicReference<Integer> n = new AtomicReference<Integer>(null);
+
+        try
+        {
+            SwingUtilities.invokeAndWait(() ->
+            {
+                // Set the default look and feel of a dialog window (it's basic and nice)
+                JDialog.setDefaultLookAndFeelDecorated(true);
+
+                // Prepare the options that will be displayed in the dialog window
+                JOptionPane optionPane = new JOptionPane(userFrom + " wishes the start a chat with you?\nDo you agree ?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+                // Create the dialog window and set its properties
+                JDialog dialog = optionPane.createDialog("Chat request from " + userFrom);
+                dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                dialog.pack();
+                dialog.setLocationRelativeTo(this.parentFrame);
+
+                // Create and start the timer
+                Timer timer = new Timer(SettingsRMI.TIME_BEFORE_RMI_FAIL, e -> dialog.setVisible(false));
+                timer.setRepeats(false);
+                timer.start();
+
+                dialog.setVisible(true); // [BLOCKING HERE]
+                dialog.toFront();
+
+                // Set the value of the atomic variable : if timer is over, the returned value is not an Integer
+                n.set(optionPane.getValue() instanceof Integer ? (Integer) optionPane.getValue() : -1);
+
+                dialog.dispose(); // [DISPOSING HERE]
+            });
+        }
+        catch (InterruptedException | InvocationTargetException e)
+        {
+            System.err.println("[ChatController] : acceptOrRefuseConnection : fail : invokeAndWait issue");
+            e.printStackTrace();
+        }
+
+        if (n.get() == 0)
+        {
+            acceptRequestedConnection(userFrom);
+        }
+
+        return (n.get() == 0); // 0: yes, 1: no, -1: no button clicked
+    }
+
+    public void receiveMessage(User userFrom, Message message)
+    {
+        // Update the GUI
+        this.mapUserChattingWith.get(userFrom).getValue1().updateGUI(message);
+
+        // Add this message information in the DB
+        this.box.put(new MessageEntity(userFrom, userLocal, message));
+    }
+
+    public static PrivateKey getPrivateKey() {
+        return getInstance().keyPair.getPrivate();
+    }
+
+    public void disconnectChat(User userFrom)
+    {
+        Pair<Chat_I, JChat> pair = this.mapUserChattingWith.remove(userFrom);
+
+        if (pair != null)
+        {
+            pair.getValue1().setStopCallback(true);
+
+            // retrieve jChat Window Ancestor and dispose of it
+            SwingUtilities.getWindowAncestor(pair.getValue1()).dispose();
+        }
+    }
+
+    /*------------------*\
+    |*	    Sending     *|
+    \*------------------*/
+
+    public void askConnection(User userTo)
+    {
+        if (!this.mapUserChattingWith.containsKey(userTo) && !this.listWait.contains(userTo))
+        {
+            this.listWait.add(userTo); // makes sure one cannot spam another with multiple connection requests
+
+            new Thread(() ->
+            {
+                try
+                {
+                    Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userTo.getRmiURL());
+
+                    if (chatRemote.askConnection(new Sendable<User>(this.userLocal, userTo))) // [CONNECTION ACCEPTED]
+                    {
+                        String firstMessage = userTo + " has accepted to chat with you !";
+
+                        JChat jChat = new JChat(this.userLocal, userTo, firstMessage);
+                        this.mapUserChattingWith.put(userTo, new Pair<Chat_I, JChat>(chatRemote, jChat));
+
+                        prepareJFrameChat(jChat, userLocal.toString(), userTo.toString());
+                    }
+                }
+                catch (RemoteException | MalformedURLException e)
+                {
+                    System.err.println("[ChatController] : askConnection : fail : " + userTo.getRmiURL());
+                    e.printStackTrace();
+                }
+
+                this.listWait.remove(userTo); // makes sure one can send a new connection request now
+            }).start();
+        }
+    }
+
+    public void sendMessage(Message message, User userTo)
+    {
+        try
+        {
+            // Fetching the Chat_I of userTo and sending the message over the network
+            this.mapUserChattingWith.get(userTo).getValue0().setMessage(this.userLocal, message);
+
+            // Add this message information in the DB
+            this.box.put(new MessageEntity(userLocal, userTo, message));
+
+            System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
+        }
+        catch (RemoteException ex)
+        {
+            System.err.println("[JChat] : jSend-actionListener : fail");
+            ex.printStackTrace();
+        }
+    }
+
+    public void closeChat(User userTo)
+    {
+        try
+        {
+            this.mapUserChattingWith.get(userTo).getValue0().disconnectChat(this.userLocal); // getValue0() => Chat_I
+        }
+        catch (RemoteException ex)
+        {
+            System.err.println("[ChatController] : closeChat : fail");
+            ex.printStackTrace();
+        }
+    }
+
+    /*------------------*\
+    |*	     Utils      *|
+    \*------------------*/
 
     public void prepareRMI(String username) throws MalformedURLException, RemoteException, NoSuchAlgorithmException
     {
@@ -80,50 +267,6 @@ public class ChatController
         this.registry.addUser(this.userLocal);
     }
 
-    public void acceptRequestedConnection(User userFrom)
-    {
-        try
-        {
-            Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userFrom.getRmiURL());
-
-            String firstMessage = "You accepted to chat with " + userFrom + " !";
-
-            JChat jChat = new JChat(this.userLocal, firstMessage, chatRemote);
-            this.listCurrentChatting.add(new AbstractMap.SimpleEntry<User, JChat>(userFrom, jChat));
-            new JFrameChat(jChat, userFrom.toString());
-        }
-        catch (RemoteException | MalformedURLException e)
-        {
-            System.err.println("[ChatController] : acceptRequestedConnection : fail : " + userFrom.getRmiURL());
-            e.printStackTrace();
-        }
-    }
-
-    public void disconnectChat(User userFrom)
-    {
-        this.listCurrentChatting.stream().parallel()//
-                .filter(entry -> entry.getKey().equals(userFrom))//
-                .findFirst().ifPresent(entry ->
-                {
-                    entry.getValue().setStopCallback(true);
-                    SwingUtilities.getWindowAncestor(entry.getValue()).dispose(); // retrieve jChat Window Ancestor and dispose of it
-                    this.listCurrentChatting.remove(entry); // remove disconnecting user from list of connected users
-                });
-    }
-
-    public List<User> getListAvailableUsers() throws RemoteException
-    {
-        List<User> listCurrentUsers = this.listCurrentChatting.stream().parallel().map(Map.Entry::getKey).toList();
-
-        return this.registry.getListUser().stream().parallel().//
-                filter(userAvailable -> !userAvailable.equals(this.userLocal) && !listCurrentUsers.contains(userAvailable)).//
-                toList();
-    }
-
-    public static PrivateKey getPrivateKey() {
-        return getInstance().keyPair.getPrivate();
-    }
-
     public void removeLocalUserFromRegistry() throws RemoteException
     {
         if (this.registry != null)
@@ -132,50 +275,61 @@ public class ChatController
         }
     }
 
-    public void askConnection(User userTo)
+    public void removeUserFromUserChattingWith(User user)
     {
-        List<User> listCurrentUsers = this.listCurrentChatting.stream().parallel().map(Map.Entry::getKey).toList();
-
-        if (!listCurrentUsers.contains(userTo))
-        {
-            new Thread(() ->
-            {
-                try
-                {
-                    Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userTo.getRmiURL());
-
-                    if (chatRemote.askConnection(new Sendable<User>(this.userLocal, userTo))) // [CONNECTION ACCEPTED]
-                    {
-                        String firstMessage = userTo + " has accepted to chat with you !";
-
-                        JChat jChat = new JChat(this.userLocal, firstMessage, chatRemote);
-                        this.listCurrentChatting.add(new AbstractMap.SimpleEntry<User, JChat>(userTo, jChat));
-                        new JFrameChat(jChat, userTo.toString());
-                    }
-                }
-                catch (RemoteException | MalformedURLException e)
-                {
-                    System.err.println("[ChatController] : askConnection : fail : " + userTo.getRmiURL());
-                    e.printStackTrace();
-                }
-            }).start();
-        }
+        this.mapUserChattingWith.remove(user);
     }
 
-    public void removeLocalUserFromCurrentChatting(JChat jChat)
+    public List<User> getListAvailableUsers() throws RemoteException
     {
-        this.listCurrentChatting.stream().parallel()//
-                .filter(entry -> entry.getValue().equals(jChat))//
-                .findFirst().ifPresent(this.listCurrentChatting::remove);
+        return this.registry.getListUser().stream().parallel().//
+                filter(userAvailable -> !userAvailable.equals(this.userLocal) && !this.mapUserChattingWith.containsKey(userAvailable)).//
+                toList();
     }
 
     /*------------------------------------------------------------------*\
     |*							Private Methods						    *|
     \*------------------------------------------------------------------*/
 
+    private void prepareJFrameChat(JChat jChat, String userFrom, String userTo)
+    {
+        JFrameChat jFrameChat = new JFrameChat(jChat, userFrom, userTo);
+        jFrameChat.setLocationRelativeTo(this.parentFrame);
+
+        jFrameChat.setVisible(true);
+        jFrameChat.toFront();
+    }
+
     /*------------------------------*\
     |*	            RMI	         	*|
     \*------------------------------*/
+
+    /*------------------*\
+    |*	   Receiving    *|
+    \*------------------*/
+
+    private void acceptRequestedConnection(User userFrom)
+    {
+        try
+        {
+            String firstMessage = "You accepted to chat with " + userFrom + " !";
+
+            Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userFrom.getRmiURL());
+            JChat jChat = new JChat(this.userLocal, userFrom, firstMessage);
+            this.mapUserChattingWith.put(userFrom, new Pair<Chat_I, JChat>(chatRemote, jChat));
+
+            prepareJFrameChat(jChat, this.userLocal.toString(), userFrom.toString());
+        }
+        catch (RemoteException | MalformedURLException e)
+        {
+            System.err.println("[ChatController] : acceptRequestedConnection : fail : " + userFrom.getRmiURL());
+            e.printStackTrace();
+        }
+    }
+
+    /*------------------*\
+    |*	    Sending     *|
+    \*------------------*/
 
     private void shareChat()
     {
@@ -200,16 +354,18 @@ public class ChatController
     // Outputs
 
     // Tools
+    private Box<MessageEntity> box;
     private Chat chatLocal;
     private Registry_I registry;
     private KeyPair keyPair;
 
-    private final List<Map.Entry<User, JChat>> listCurrentChatting;
+    private final HashMap<User, Pair<Chat_I, JChat>> mapUserChattingWith;
+    private final List<User> listWait;
+    private JMain parentFrame;
 
     /*------------------------------*\
     |*			  Static			*|
     \*------------------------------*/
 
     private static ChatController instance = null;
-
 }

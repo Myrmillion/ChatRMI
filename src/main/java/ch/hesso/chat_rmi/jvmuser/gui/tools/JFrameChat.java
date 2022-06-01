@@ -12,26 +12,26 @@ public class JFrameChat extends JFrame
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-	public JFrameChat(JComponent jcomponent, boolean isFullScreen, String title)
-	{
-		super(title);
+    public JFrameChat(JComponent jComponent, boolean isFullScreen, String title, boolean isVisible)
+    {
+        super(title);
 
-		this.jcomponent = jcomponent;
+        this.jComponent = jComponent;
 
-		geometry();
-		control();
-		appearance(isFullScreen);
-	}
+        geometry();
+        control();
+        appearance(isFullScreen, isVisible);
+    }
 
-	public JFrameChat(JComponent jcomponent, String title)
-	{
-		this(jcomponent, false, "Chatting with " + title);
-	}
+    public JFrameChat(JComponent jcomponent, String userFrom, String userTo)
+    {
+        this(jcomponent, false, "[" + userFrom + "]" + " Chatting with : " + userTo, false);
+    }
 
-	public JFrameChat(JComponent jcomponent)
-	{
-		this(jcomponent, false, "default name");
-	}
+    public JFrameChat(JComponent jcomponent, String title)
+    {
+        this(jcomponent, false, title, true);
+    }
 
 	/*------------------------------------------------------------------*\
 	|*							Public Methodes							*|
@@ -41,43 +41,42 @@ public class JFrameChat extends JFrame
 	|*							Private Methods							*|
 	\*------------------------------------------------------------------*/
 
-	private void geometry()
-	{
-		//by default jframe use a borderlayout in the middle !
-		{
-			add(jcomponent);
-		}
-	}
+    private void geometry()
+    {
+        //by default jframe use a borderlayout in the middle !
+        {
+            add(jComponent);
+        }
+    }
 
-	private void control()
-	{
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-	}
+    private void control()
+    {
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+    }
 
-	private void appearance(boolean isFullScreen)
-	{
-		if (isFullScreen)
-		{
-			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-			setSize(dim);
-			setUndecorated(true);
-		}
-		else
-		{
-			setSize(1920 / 2, 1080 / 2);
-		}
+    private void appearance(boolean isFullScreen, boolean isVisible)
+    {
+        if (isFullScreen)
+        {
+            Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+            setSize(dim);
+            setUndecorated(true);
+        }
+        else
+        {
+            setSize(1920 / 2, 1080 / 2);
+        }
 
-		setLocationRelativeTo(null); // frame centrer
-		setVisible(true); // last!
-	}
+        setLocationRelativeTo(null); // frame centrer
+        setVisible(isVisible); // WILL BE MADE VISIBLE SOMEWHERE ELSE THAN INSIDE THE CLASS
+    }
 
 	/*------------------------------------------------------------------*\
 	|*							Private Attributes						*|
 	\*------------------------------------------------------------------*/
 
-	// Inputs
-	private JComponent jcomponent;
+    // Inputs
+    private final JComponent jComponent;
 
-	// Tools
-
+    // Tools
 }
