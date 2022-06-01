@@ -18,10 +18,7 @@ import javax.swing.Timer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
+import java.security.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,7 +48,7 @@ public class ChatController
         /// DEPUIS LE MENU MAVEN EN HAUT À DROITE !!
         ///
         /// ----------------------------------------
-        ///
+        //
         this.box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
         ///
         /// ----------------------------------------
@@ -79,7 +76,8 @@ public class ChatController
     public List<MessageEntity> retrieveSavedMessages(User userRemote)
     {
         System.out.println("LOAD MESSAGES");
-        this.box.getAll().forEach(me -> {
+        this.box.getAll().forEach(me ->
+        {
             System.out.println(me.id);
             System.out.println(me.message.getText());
             System.out.println(me.date.toString());
@@ -165,6 +163,11 @@ public class ChatController
         this.box.put(new MessageEntity(userFrom, userLocal, message));
     }
 
+    public PrivateKey getPrivateKey()
+    {
+        return keyPair.getPrivate();
+    }
+
     public void disconnectChat(User userFrom)
     {
         Pair<Chat_I, JChat> pair = this.mapUserChattingWith.remove(userFrom);
@@ -194,7 +197,7 @@ public class ChatController
                 {
                     Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userTo.getRmiURL());
 
-                    if (chatRemote.askConnection(this.userLocal)) // [CONNECTION ACCEPTED]
+                    if (chatRemote.askConnection(new Sendable<User>(this.userLocal, userTo))) // [CONNECTION ACCEPTED]
                     {
                         String firstMessage = userTo + " has accepted to chat with you !";
 
@@ -220,7 +223,7 @@ public class ChatController
         try
         {
             // Fetching the Chat_I of userTo and sending the message over the network
-            this.mapUserChattingWith.get(userTo).getValue0().setMessage(this.userLocal, message);
+            this.mapUserChattingWith.get(userTo).getValue0().setMessage(new Sendable<User>(this.userLocal, userTo), new Sendable<Message>(message, userTo));
 
             // Add this message information in the DB
             this.box.put(new MessageEntity(userLocal, userTo, message));
@@ -238,7 +241,7 @@ public class ChatController
     {
         try
         {
-            this.mapUserChattingWith.get(userTo).getValue0().disconnectChat(this.userLocal); // getValue0() => Chat_I
+            this.mapUserChattingWith.get(userTo).getValue0().disconnectChat(new Sendable<User>(this.userLocal, userTo)); // getValue0() => Chat_I
         }
         catch (RemoteException ex)
         {
@@ -258,6 +261,7 @@ public class ChatController
         generator.initialize(2048);
         this.keyPair = generator.generateKeyPair();
 
+        // Get Public Key that will be used directly after
         PublicKey publicKey = this.keyPair.getPublic();
 
         // Create the local user and the local chat

@@ -18,14 +18,14 @@ public class User implements Serializable
     {
         this.username = username;
         this.rmiURL = rmiURL;
-        //this.publicKey = null;
+        this.publicKey = null;
     }
 
     public User(String username, RmiURL rmiURL, PublicKey publicKey)
     {
         this.username = username;
         this.rmiURL = rmiURL;
-        //this.publicKey = null;
+        this.publicKey = publicKey;
     }
 
     /*------------------------------------------------------------------*\
@@ -90,6 +90,10 @@ public class User implements Serializable
         return this.rmiURL;
     }
 
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
     /*------------------------------*\
     |*			Converter			*|
     \*------------------------------*/
@@ -145,6 +149,6 @@ public class User implements Serializable
     // Outputs
 
     // Tools
-    //private final PublicKey publicKey;
+    private final PublicKey publicKey;
 
 }

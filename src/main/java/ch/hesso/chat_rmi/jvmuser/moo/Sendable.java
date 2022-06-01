@@ -14,11 +14,15 @@ public class Sendable<T extends Serializable> implements Serializable {
         encrypt(content, publicKeyReceiver, privateKeySender);
     }
 
+    public Sendable(T content, User to) {
+        encrypt(content, to.getPublicKey(), ChatController.getInstance().getPrivateKey());
+    }
+
     private void encrypt(T content, PublicKey publicKeyReceiver, PrivateKey privateKeySender) {
         try {
             SecretKey key = generateKey();
-            this.initializationVectorSpec = generateIv();
-            this.content = encryptAES(content, key, initializationVectorSpec);
+            this.initializationVector = generateIv();
+            this.content = encryptAES(content, key, new IvParameterSpec(initializationVector));
             this.symmetricKey = encryptRSA(key, publicKeyReceiver);
             this.signature = sign(this.content, privateKeySender);
         } catch (Exception e) {
@@ -74,16 +78,20 @@ public class Sendable<T extends Serializable> implements Serializable {
         return cipher.doFinal(messageHash);
     }
 
+    public T decrypt(PrivateKey privateKey) {
+        return decrypt(privateKey, null);
+    }
     public T decrypt(PrivateKey privateKeyReceiver, PublicKey publicKeySender) {
         try {
-            boolean verified = verifySignature(this.signature, this.content, publicKeySender);
-            if (!verified) {
-                System.out.println("Signature couldn't be verified");
-                return null;
+            if (publicKeySender != null) {
+                boolean verified = verifySignature(this.signature, this.content, publicKeySender);
+                if (!verified) {
+                    System.out.println("Signature couldn't be verified");
+                    return null;
+                }
             }
             SecretKey secretKey = decryptRSA(this.symmetricKey, privateKeyReceiver);
-            T decrypted = (T) decryptAES(this.content, secretKey, this.initializationVectorSpec);
-            return decrypted;
+            return (T)decryptAES(this.content, secretKey, new IvParameterSpec(this.initializationVector));
         } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();
@@ -138,15 +146,15 @@ public class Sendable<T extends Serializable> implements Serializable {
         return key;
     }
 
-    public static IvParameterSpec generateIv() {
+    public static byte[] generateIv() {
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
-        return new IvParameterSpec(iv);
+        return iv;
     }
 
     private byte[] content;
     private byte[] symmetricKey;
-    private IvParameterSpec initializationVectorSpec;
+    private byte[] initializationVector;
     private byte[] signature;
 
     private final static String AES_ALGORITHM = "AES/CBC/PKCS5Padding";

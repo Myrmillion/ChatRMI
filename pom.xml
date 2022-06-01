@@ -35,6 +35,11 @@
             <artifactId>objectbox-java</artifactId>
             <version>${objectboxVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>io.objectbox</groupId>
+            <artifactId>objectbox-macos</artifactId>
+            <version>${objectboxVersion}</version>
+        </dependency>
 
         <dependency>
             <groupId>io.objectbox</groupId>
