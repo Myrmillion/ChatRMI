@@ -48,14 +48,13 @@ public class UseJMain4
         generator.initialize(2048);
         KeyPair user1 = generator.generateKeyPair();
         KeyPair user2 = generator.generateKeyPair();
+        KeyPair user3 = generator.generateKeyPair();
 
         Message message = new Message(new User("Nicolas", null), "Bonjour", false);
 
-        Sendable<Message> sendable = new Sendable(message, user2.getPublic());
+        Sendable<Message> sendable = new Sendable(message, user2.getPublic(), user1.getPrivate());
 
-        System.out.println(sendable.content);
-
-        Message received = sendable.decrypt(user2.getPrivate());
+        Message received = sendable.decrypt(user2.getPrivate(), user1.getPublic());
         System.out.println(received.getUserFrom() + ": " + message.getText());
     }
 
@@ -75,4 +74,5 @@ public class UseJMain4
         System.out.println(secretKey.hashCode());
         System.out.println(secretKey1.hashCode());
     }
+
 }

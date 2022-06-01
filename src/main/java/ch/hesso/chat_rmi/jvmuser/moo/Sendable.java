@@ -6,25 +6,22 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import java.io.*;
 import java.security.*;
+import java.util.Arrays;
 import java.util.Base64;
 
-public class Sendable<T extends Serializable> implements Serializable
-{
-    public Sendable(T content, PublicKey publicKey)
-    {
-        encrypt(content, publicKey);
+public class Sendable<T extends Serializable> implements Serializable {
+    public Sendable(T content, PublicKey publicKeyReceiver, PrivateKey privateKeySender) {
+        encrypt(content, publicKeyReceiver, privateKeySender);
     }
 
-    private void encrypt(T content, PublicKey publicKey) {
-        try
-        {
+    private void encrypt(T content, PublicKey publicKeyReceiver, PrivateKey privateKeySender) {
+        try {
             SecretKey key = generateKey();
             this.initializationVectorSpec = generateIv();
             this.content = encryptAES(content, key, initializationVectorSpec);
-            this.symmetricKey = encryptRSA(key, publicKey);
-        }
-        catch (Exception e)
-        {
+            this.symmetricKey = encryptRSA(key, publicKeyReceiver);
+            this.signature = sign(this.content, privateKeySender);
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
@@ -64,13 +61,30 @@ public class Sendable<T extends Serializable> implements Serializable
         return outputStream.toByteArray();
     }
 
-    public T decrypt(PrivateKey privateKey) {
+    public static byte[] hash(byte[] content) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        return md.digest(content);
+    }
+
+    public static byte[] sign(byte[] content, PrivateKey privateKey) throws Exception {
+        byte[] messageHash = hash(content);
+
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+        return cipher.doFinal(messageHash);
+    }
+
+    public T decrypt(PrivateKey privateKeyReceiver, PublicKey publicKeySender) {
         try {
-           SecretKey secretKey = decryptRSA(this.symmetricKey, privateKey);
-           T decrypted = (T)decryptAES(this.content, secretKey, this.initializationVectorSpec);
-           return decrypted;
-        }
-        catch (Exception e) {
+            boolean verified = verifySignature(this.signature, this.content, publicKeySender);
+            if (!verified) {
+                System.out.println("Signature couldn't be verified");
+                return null;
+            }
+            SecretKey secretKey = decryptRSA(this.symmetricKey, privateKeyReceiver);
+            T decrypted = (T) decryptAES(this.content, secretKey, this.initializationVectorSpec);
+            return decrypted;
+        } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();
         }
@@ -91,11 +105,11 @@ public class Sendable<T extends Serializable> implements Serializable
         Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
         cipher.init(Cipher.UNWRAP_MODE, privateKey);
 
-        return (SecretKey) cipher.unwrap(symmetricKey, "AES",Cipher.SECRET_KEY);
+        return (SecretKey) cipher.unwrap(symmetricKey, "AES", Cipher.SECRET_KEY);
 
     }
 
-    public static Object decryptAES(byte[] content, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws Exception{
+    public static Object decryptAES(byte[] content, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws Exception {
         Cipher cipher = Cipher.getInstance(AES_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
 
@@ -105,6 +119,16 @@ public class Sendable<T extends Serializable> implements Serializable
 
         SealedObject sealedObject = (SealedObject) objectInputStreamstream.readObject();
         return sealedObject.getObject(cipher);
+    }
+
+    public static boolean verifySignature(byte[] signature, byte[] content, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        byte[] decryptedMessageHash = cipher.doFinal(signature);
+
+        byte[] realMessageHash = hash(content);
+        return Arrays.equals(decryptedMessageHash, realMessageHash);
+
     }
 
     public static SecretKey generateKey() throws NoSuchAlgorithmException {
@@ -120,9 +144,10 @@ public class Sendable<T extends Serializable> implements Serializable
         return new IvParameterSpec(iv);
     }
 
-    public byte[] content; //TODO private
+    private byte[] content;
     private byte[] symmetricKey;
     private IvParameterSpec initializationVectorSpec;
+    private byte[] signature;
 
     private final static String AES_ALGORITHM = "AES/CBC/PKCS5Padding";
     private final static String RSA_ALGORITHM = "RSA/ECB/PKCS1Padding";
