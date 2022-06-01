@@ -176,6 +176,7 @@ public class JChat extends Box
             send();
         });
 
+        // Message (EnterKey Pressed) (JTextField)
         jMessage.addKeyListener(new KeyAdapter()
         {
             public void keyPressed(KeyEvent e)

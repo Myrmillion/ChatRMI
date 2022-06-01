@@ -39,11 +39,13 @@ public class JLogin extends Box
 
     private void control()
     {
+        // Login (Button)
         jLogin.addActionListener(e ->
         {
             login();
         });
 
+        // Password (EnterKey Pressed) (JPasswordField)
         jPassword.addKeyListener(new KeyAdapter()
         {
             public void keyPressed(KeyEvent e)
