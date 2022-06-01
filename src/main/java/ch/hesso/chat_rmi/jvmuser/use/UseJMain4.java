@@ -23,7 +23,8 @@ public class UseJMain4
         System.out.println("test");
 
         //new JFrameChat(new JMain(), "Chat RMI");
-        try {
+        try
+        {
             Signature signature = Signature.getInstance("SHA256withRSA");
 
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
@@ -37,29 +38,33 @@ public class UseJMain4
             Cipher encryptCipher = Cipher.getInstance("RSA");
             encryptCipher.init(Cipher.ENCRYPT_MODE, user2.getPublic());
 
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
 
         }
     }
 
     @Test
-    public void TestSendable() throws NoSuchAlgorithmException {
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
-        KeyPair user1 = generator.generateKeyPair();
-        KeyPair user2 = generator.generateKeyPair();
-        KeyPair user3 = generator.generateKeyPair();
-
-        Message message = new Message(new User("Nicolas", null), "Bonjour", false);
-
-        Sendable<Message> sendable = new Sendable(message, user2.getPublic(), user1.getPrivate());
-
-        Message received = sendable.decrypt(user2.getPrivate(), user1.getPublic());
-        System.out.println(received.getUserFrom() + ": " + message.getText());
+    public void TestSendable() throws NoSuchAlgorithmException
+    {
+        //        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        //        generator.initialize(2048);
+        //        KeyPair user1 = generator.generateKeyPair();
+        //        KeyPair user2 = generator.generateKeyPair();
+        //        KeyPair user3 = generator.generateKeyPair();
+        //
+        //        Message message = new Message(new User("Nicolas", null), "Bonjour", false);
+        //
+        //        Sendable<Message> sendable = new Sendable(message, user2.getPublic(), user1.getPrivate());
+        //
+        //        Message received = sendable.decrypt(user2.getPrivate(), user1.getPublic());
+        //        System.out.println(received.getUserFrom() + ": " + message.getText());
     }
 
     @Test
-    public void TestRSA() throws Exception {
+    public void TestRSA() throws Exception
+    {
 
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
