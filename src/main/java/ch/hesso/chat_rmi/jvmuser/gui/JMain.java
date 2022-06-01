@@ -112,18 +112,26 @@ public class JMain extends Box {
 
                 try {
                     this.chatController.prepareRMI(this.jUsername.getText());
-                } catch (RemoteException | MalformedURLException | NoSuchAlgorithmException ex) {
+                    updateListModel();
+                }
+                catch (RemoteException | MalformedURLException | NoSuchAlgorithmException ex)
+                {
                     System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
                     System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
                     ex.printStackTrace();
 
+                    this.jAuthenticate.setEnabled(true);
                     this.jUsername.setEnabled(true);
+                    this.jPassword.setEnabled(true);
                     this.jCreate.setEnabled(true);
+
+                    this.jLabelChoice.setEnabled(false);
+                    this.jAvailableUsers.setEnabled(false);
                     this.jResynchronize.setEnabled(false);
                 }
-
-                updateListModel();
-            } else {
+            }
+            else
+            {
                 this.jUsername.requestFocusInWindow();
             }
         });
@@ -239,10 +247,10 @@ public class JMain extends Box {
     |*			  Static		   	*|
     \*------------------------------*/
 
-    public static final int FONT_TITLE_SIZE = 22;
+    public static final int FONT_TITLE_SIZE = 24;
     public static final int FONT_TEXT_FIELD_SIZE = 20;
     public static final int FONT_BUTTON_SIZE = 14;
 
-    private final static int STRUT_SMALL_SIZE = 6;
+    private final static int STRUT_SMALL_SIZE = 4;
     private final static int STRUT_BIG_SIZE = 20;
 }

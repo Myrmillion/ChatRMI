@@ -3,8 +3,14 @@ package ch.hesso.chat_rmi;
 import ch.hearc.tools.rmi.Ports;
 import ch.hearc.tools.rmi.RmiURL;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry;
+import ch.hesso.chat_rmi.jvmuser.gui.tools.Utils;
+import ch.hesso.chat_rmi.jvmuser.moo.Sendable;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 
 /**
  * <pre>
@@ -85,7 +91,6 @@ public class SettingsRMI
 
     private static InetAddress chatIP()
     {
-        System.out.println("yeye");
         try
         {
             String ipChat = System.getProperty("IP_Chat");
@@ -179,9 +184,31 @@ public class SettingsRMI
 
     private static final int CHAT_RMI_PORT = Ports.PORT_RMI_DEFAUT; // 1099
 
-    public static RmiURL CHAT_RMI_URL(String CHAT_RMI_ID) // CHAT_RMI_ID is guaranteeing the unicity
+    public static RmiURL CHAT_RMI_URL(String CHAT_RMI_ID, byte[] encodedKey) // CHAT_RMI_ID is guaranteeing the unicity
     {
-        return new RmiURL(CHAT_RMI_ID, chatIP(), CHAT_RMI_PORT);
+        StringBuilder macAddress = new StringBuilder("");
+        StringBuilder hashedEncodedKey = new StringBuilder("");
+
+        try
+        {
+            // Getting the MAC Address in String format
+            Utils.byteStream(NetworkInterface.getByInetAddress(InetAddress.getLocalHost()).getHardwareAddress())//
+                    .parallel()//
+                    .forEachOrdered(aByte -> macAddress.append(String.format("%02X", aByte)));
+
+            // Getting the encoded PublicKey in hashed SHA-256 String format
+            Utils.byteStream(Sendable.hash(encodedKey))//
+                    .parallel()//
+                    .forEachOrdered(aByte -> hashedEncodedKey.append(String.format("%02X", aByte)));
+        }
+        catch (Exception e)
+        {
+            System.err.println("\n[SettingsRMI] : CHAT_RMI_URL : failed to obtain MAC Address\n");
+            System.exit(0); // 0: ok, -1: ko
+            return null;
+        }
+
+        return new RmiURL(CHAT_RMI_ID + "-" + macAddress + "-" + hashedEncodedKey, chatIP(), CHAT_RMI_PORT);
     }
 
     /*------------------------------*\
