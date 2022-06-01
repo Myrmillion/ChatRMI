@@ -21,7 +21,9 @@ public class JFrameChat extends JFrame
         geometry();
         control();
         appearance(isFullScreen, isVisible);
-        if (mainJFrame == null) {
+
+        if (mainJFrame == null)
+        {
             System.out.println("mainJFrame = his");
             mainJFrame = this;
         }
@@ -41,7 +43,8 @@ public class JFrameChat extends JFrame
 	|*							Public Methodes							*|
 	\*------------------------------------------------------------------*/
 
-    public void changePage(JComponent component) {
+    public void changePage(JComponent component)
+    {
         this.jComponent = component;
         getContentPane().removeAll();
         getContentPane().add(component);
@@ -92,6 +95,5 @@ public class JFrameChat extends JFrame
     private JComponent jComponent;
 
     // Tools
-
     public static JFrameChat mainJFrame;
 }
