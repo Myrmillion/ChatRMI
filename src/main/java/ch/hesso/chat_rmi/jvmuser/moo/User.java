@@ -21,7 +21,7 @@ public class User implements Serializable
     public User(String username, RmiURL rmiURL, PublicKey publicKey) {
         this.username = username;
         this.rmiURL = rmiURL;
-        this.publicKey = null;
+        this.publicKey = publicKey;
     }
 
     /*------------------------------------------------------------------*\
@@ -70,6 +70,10 @@ public class User implements Serializable
     public RmiURL getRmiURL()
     {
         return rmiURL;
+    }
+
+    public PublicKey getPublicKey() {
+        return publicKey;
     }
 
     /*------------------------------------------------------------------*\

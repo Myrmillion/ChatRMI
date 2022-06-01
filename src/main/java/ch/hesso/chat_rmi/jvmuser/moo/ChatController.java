@@ -12,6 +12,7 @@ import java.rmi.RemoteException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.util.*;
 import java.util.List;
 
@@ -119,6 +120,10 @@ public class ChatController
                 toList();
     }
 
+    public static PrivateKey getPrivateKey() {
+        return getInstance().keyPair.getPrivate();
+    }
+
     public void removeLocalUserFromRegistry() throws RemoteException
     {
         if (this.registry != null)
@@ -139,7 +144,7 @@ public class ChatController
                 {
                     Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userTo.getRmiURL());
 
-                    if (chatRemote.askConnection(this.userLocal)) // [CONNECTION ACCEPTED]
+                    if (chatRemote.askConnection(new Sendable<User>(this.userLocal, userTo))) // [CONNECTION ACCEPTED]
                     {
                         String firstMessage = userTo + " has accepted to chat with you !";
 

@@ -23,6 +23,11 @@ public class Chat implements Chat_I
     |*							Public Methods 							*|
     \*------------------------------------------------------------------*/
 
+
+    public Boolean askConnection(Sendable<User> userFrom) throws RemoteException {
+        return askConnection(userFrom.decrypt(ChatController.getPrivateKey()));
+    }
+
     @Override
     public Boolean askConnection(User userFrom) throws RemoteException
     {
