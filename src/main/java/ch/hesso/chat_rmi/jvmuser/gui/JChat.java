@@ -1,10 +1,7 @@
 package ch.hesso.chat_rmi.jvmuser.gui;
 
 import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
-import ch.hesso.chat_rmi.jvmuser.gui.tools.AncestorAdapter;
-import ch.hesso.chat_rmi.jvmuser.gui.tools.JAllSpaceH;
-import ch.hesso.chat_rmi.jvmuser.gui.tools.JCentersV;
-import ch.hesso.chat_rmi.jvmuser.gui.tools.JComponents;
+import ch.hesso.chat_rmi.jvmuser.gui.tools.*;
 import ch.hesso.chat_rmi.jvmuser.moo.ChatController;
 import ch.hesso.chat_rmi.jvmuser.moo.Message;
 import ch.hesso.chat_rmi.jvmuser.moo.User;
@@ -30,7 +27,7 @@ public class JChat extends Box {
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JChat(User userLocal, User userRemote, String firstMessage) {
+    public JChat(User userLocal, User userRemote, boolean hasStarted) {
         super(BoxLayout.Y_AXIS);
 
         this.userLocal = userLocal;
@@ -42,7 +39,7 @@ public class JChat extends Box {
         control();
         appearance();
 
-        displayFirstMessage(firstMessage);
+        displayFirstMessage(hasStarted);
         displaySavedMessages();
     }
 
@@ -76,9 +73,14 @@ public class JChat extends Box {
         this.stopCallback = true; // very important !!!
     }
 
-    private void displayFirstMessage(String firstMessage) {
-        insertTextCustomized(this.jDisplayRemote, firstMessage, FONT_CHAT_BIG, NICE_BLUE, TRANSPARENT, false, true);
-        insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_BIG, Color.WHITE, TRANSPARENT, false, true);
+    private void displayFirstMessage(boolean hasStarted) {
+        /*insertTextCustomized(this.jDisplayRemote, firstMessage, FONT_CHAT_BIG, NICE_BLUE, TRANSPARENT, false, true);
+        insertTextCustomized(this.jDisplayLocal, "", FONT_CHAT_BIG, Color.WHITE, TRANSPARENT, false, true);*/
+        if (hasStarted) {
+            jChatWith.setText("<html>" + userRemote.getHtml() + " has accepted to chat with you !</html>");
+        } else {
+            jChatWith.setText("<html>" + "You accepted to chat with " + userRemote.getHtml() + " !</html>");
+        }
     }
 
     private void displaySavedMessages() {
@@ -141,6 +143,7 @@ public class JChat extends Box {
         this.jDisplayLocal = new JTextPane();
         this.jScrollPane = new JScrollPane(new JAllSpaceH(this.jDisplayRemote, this.jDisplayLocal));
 
+        jChatWith = new JLabel("");
         this.jDisconnect = new JButton("Disconnect");
         this.jMessage = new JTextField();
         this.jSend = new JButton("Send");
@@ -154,7 +157,7 @@ public class JChat extends Box {
         JComponents.setHeight(jCentersV, 50);
 
         boxH.add(jCentersV);
-
+        add(new JCenterH(this.jChatWith));
         add(this.jScrollPane);
         add(boxH);
     }
@@ -243,6 +246,9 @@ public class JChat extends Box {
     }
 
     private void appearance() {
+        // Chat with (Label)
+        this.jChatWith.setHorizontalAlignment(SwingConstants.CENTER);
+
         // Display remote (JTextPane)
         this.jDisplayRemote.setEditable(false);
         alignTextInPane(this.jDisplayRemote, StyleConstants.ALIGN_LEFT);
@@ -292,6 +298,7 @@ public class JChat extends Box {
     private JTextPane jDisplayLocal;
     private JTextPane jDisplayRemote;
 
+    private JLabel jChatWith;
     private JButton jDisconnect;
     private JTextField jMessage;
     private JButton jSend;

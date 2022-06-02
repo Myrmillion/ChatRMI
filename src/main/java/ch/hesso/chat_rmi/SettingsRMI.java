@@ -5,13 +5,9 @@ import ch.hearc.tools.rmi.RmiURL;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.Utils;
 import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
-import ch.hesso.chat_rmi.jvmuser.moo.Sendable;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 
 /**
  * <pre>
@@ -204,6 +200,7 @@ public class SettingsRMI
         }
         catch (Exception e)
         {
+            System.err.println(e);
             System.err.println("\n[SettingsRMI] : CHAT_RMI_URL : failed to obtain MAC Address\n");
             System.exit(0); // 0: ok, -1: ko
             return null;

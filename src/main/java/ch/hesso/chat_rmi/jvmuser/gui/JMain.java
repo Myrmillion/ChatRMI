@@ -41,6 +41,7 @@ public class JMain extends Box {
 
         SwingUtilities.invokeLater(() -> this.chatController.setParentFrame(this));
         login(username, password);
+
     }
 
 	/*------------------------------------------------------------------*\
@@ -84,11 +85,14 @@ public class JMain extends Box {
 
     private void geometry()
     {
+        this.jConnectedAs = new JLabel("Connected as ");
         this.jLabelChoice = new JLabel("Choose a user to chat with");
         this.jAvailableUsers = new JList<User>(this.listAvailableUsers);
         this.jAskChat = new JButton("> ASK FOR A CHAT <");
         this.jDisconnect = new JButton("Disconnect");
 
+        add(createVerticalStrut(STRUT_BIG_SIZE));
+        add(new JCenterH(this.jConnectedAs));
         add(createVerticalGlue());
         add(new JCenterH(this.jLabelChoice));
         add(createVerticalStrut(STRUT_SMALL_SIZE));
@@ -164,6 +168,7 @@ public class JMain extends Box {
 
     private void appearance() {
         // Labels
+        this.jConnectedAs.setHorizontalAlignment(SwingConstants.CENTER);
         this.jLabelChoice.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
 
         // AvailableUsers (JList<User>)
@@ -189,6 +194,8 @@ public class JMain extends Box {
         try
         {
             this.chatController.prepareRMI(username, password);
+            User u = chatController.getUserLocal();
+            this.jConnectedAs.setText("<html><div style='text-align: center; font-size: 14px'>Connected as <b>" + u.getUsername() + "</b><span style='color: gray; font-size: 6px'>" + u.getId()+"</span></div></html>");
         }
         catch (Exception ex)
         {
@@ -210,6 +217,7 @@ public class JMain extends Box {
     private final ChatController chatController;
     private final DefaultListModel<User> listAvailableUsers;
 
+    private JLabel jConnectedAs;
     private JLabel jLabelChoice;
     private JList<User> jAvailableUsers;
 

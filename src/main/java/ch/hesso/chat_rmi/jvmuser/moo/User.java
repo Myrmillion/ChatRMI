@@ -39,7 +39,12 @@ public class User implements Serializable
     @Override
     public String toString()
     {
-        return this.username;
+        //return this.username;
+        return "<html><div style='text-align: center; font-size: 14px'><b>" + getUsername() + "</b><span style='color: gray; font-size: 6px'>" + getId() + "</span></div></html>";
+    }
+
+    public String getHtml() {
+        return "<span style='font-size: 14px'><b>" + getUsername() + "</b><span style='color: gray; font-size: 6px'>" + getId() + "</span></span>";
     }
 
     /*------------------------------*\
@@ -92,6 +97,10 @@ public class User implements Serializable
     public PublicKey getPublicKey()
     {
         return publicKey;
+    }
+
+    public String getId() {
+        return "#" + publicKey.hashCode();
     }
 
     /*------------------------------*\

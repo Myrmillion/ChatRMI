@@ -38,9 +38,6 @@ public class MessageEntity
 
     public MessageEntity(long id, User sender, User receiver, Sendable<Message> sendable, Date date, String uniqueMessageID)
     {
-        System.out.println("sender = " + sender);
-        System.out.println("receiver = " + receiver);
-        System.out.println("sendable = " + sendable);
         this.id = id;
         this.sender = sender;
         this.receiver = receiver;

@@ -118,10 +118,10 @@ public class ChatController
                 JDialog.setDefaultLookAndFeelDecorated(true);
 
                 // Prepare the options that will be displayed in the dialog window
-                JOptionPane optionPane = new JOptionPane(userFrom + " wishes the start a chat with you?\nDo you agree ?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+                JOptionPane optionPane = new JOptionPane("<html>" + userFrom.getHtml() + " wishes the start a chat with you?\nDo you agree ?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
 
                 // Create the dialog window and set its properties
-                JDialog dialog = optionPane.createDialog("Chat request from " + userFrom);
+                JDialog dialog = optionPane.createDialog("Chat request from " + userFrom.getUsername());
                 dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
                 dialog.pack();
                 dialog.setLocationRelativeTo(this.parentFrame);
@@ -169,6 +169,10 @@ public class ChatController
         return keyPair.getPrivate();
     }
 
+    public User getUserLocal() {
+        return userLocal;
+    }
+
     public void disconnectChat(User userFrom)
     {
         Pair<Chat_I, JChat> pair = this.mapUserChattingWith.remove(userFrom);
@@ -200,12 +204,12 @@ public class ChatController
 
                     if (chatRemote.askConnection(new Sendable<User>(this.userLocal, userTo))) // [CONNECTION ACCEPTED]
                     {
-                        String firstMessage = userTo + " has accepted to chat with you !";
+                        //String firstMessage = userTo.getUsername() + userTo.getId() + " has accepted to chat with you !";
 
-                        JChat jChat = new JChat(this.userLocal, userTo, firstMessage);
+                        JChat jChat = new JChat(this.userLocal, userTo, true);
                         this.mapUserChattingWith.put(userTo, new Pair<Chat_I, JChat>(chatRemote, jChat));
 
-                        prepareJFrameChat(jChat, userLocal.toString(), userTo.toString());
+                        prepareJFrameChat(jChat, userLocal.getUsername(), userTo.getUsername());
                     }
                 }
                 catch (RemoteException | MalformedURLException e)
@@ -321,13 +325,13 @@ public class ChatController
     {
         try
         {
-            String firstMessage = "You accepted to chat with " + userFrom + " !";
+            //String firstMessage = "You accepted to chat with " + userFrom.getUsername() + userFrom.getId() + " !";
 
             Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userFrom.getRmiURL());
-            JChat jChat = new JChat(this.userLocal, userFrom, firstMessage);
+            JChat jChat = new JChat(this.userLocal, userFrom, false);
             this.mapUserChattingWith.put(userFrom, new Pair<Chat_I, JChat>(chatRemote, jChat));
 
-            prepareJFrameChat(jChat, this.userLocal.toString(), userFrom.toString());
+            prepareJFrameChat(jChat, this.userLocal.getUsername(), userFrom.getUsername());
         }
         catch (RemoteException | MalformedURLException e)
         {

@@ -26,7 +26,7 @@ public class Sendable<T extends Serializable> implements Serializable {
             this.symmetricKey = CryptoHelper.encryptRSA(key, publicKeyReceiver);
             this.signature = CryptoHelper.sign(this.content, privateKeySender);
         } catch (Exception e) {
-            System.out.println(e);
+            //System.out.println(e);
         }
     }
 
@@ -47,8 +47,8 @@ public class Sendable<T extends Serializable> implements Serializable {
             SecretKey secretKey = CryptoHelper.decryptRSA(this.symmetricKey, privateKeyReceiver);
             return (T)CryptoHelper.decryptAES(this.content, secretKey, new IvParameterSpec(this.initializationVector));
         } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
+            /*System.out.println(e);
+            e.printStackTrace();*/
         }
         return null;
     }
