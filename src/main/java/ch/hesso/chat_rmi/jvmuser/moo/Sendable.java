@@ -8,6 +8,11 @@ import java.util.Arrays;
 
 public class Sendable<T extends Serializable> implements Serializable
 {
+
+    /*------------------------------------------------------------------*\
+    |*							Constructors							*|
+    \*------------------------------------------------------------------*/
+
     public Sendable(T content, PublicKey publicKeyReceiver, PrivateKey privateKeySender)
     {
         encrypt(content, publicKeyReceiver, privateKeySender);
@@ -18,21 +23,42 @@ public class Sendable<T extends Serializable> implements Serializable
         encrypt(content, to.getPublicKey(), ChatController.getInstance().getPrivateKey());
     }
 
-    private void encrypt(T content, PublicKey publicKeyReceiver, PrivateKey privateKeySender)
+    /*------------------------------------------------------------------*\
+    |*							Public Methods      					*|
+    \*------------------------------------------------------------------*/
+
+    public T decrypt(PrivateKey privateKey)
+    {
+        return decrypt(privateKey, null);
+    }
+
+    public T decrypt(PrivateKey privateKeyReceiver, PublicKey publicKeySender)
     {
         try
         {
-            SecretKey key = generateKey();
-            this.initializationVector = generateIv();
-            this.content = encryptAES(content, key, new IvParameterSpec(initializationVector));
-            this.symmetricKey = encryptRSA(key, publicKeyReceiver);
-            this.signature = sign(this.content, privateKeySender);
+            if (publicKeySender != null)
+            {
+                boolean verified = verifySignature(this.signature, this.content, publicKeySender);
+                if (!verified)
+                {
+                    System.out.println("Signature couldn't be verified");
+                    return null;
+                }
+            }
+            SecretKey secretKey = decryptRSA(this.symmetricKey, privateKeyReceiver);
+            return (T) decryptAES(this.content, secretKey, new IvParameterSpec(this.initializationVector));
         }
         catch (Exception e)
         {
             System.out.println(e);
+            e.printStackTrace();
         }
+        return null;
     }
+
+    /*------------------------------*\
+    |*			  Static		   	*|
+    \*------------------------------*/
 
     // Encrypt the symetric key with RSA
     public static byte[] encryptRSA(SecretKey keyToEncrypt, PublicKey publicKey) throws Exception
@@ -84,35 +110,6 @@ public class Sendable<T extends Serializable> implements Serializable
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, privateKey);
         return cipher.doFinal(messageHash);
-    }
-
-    public T decrypt(PrivateKey privateKey)
-    {
-        return decrypt(privateKey, null);
-    }
-
-    public T decrypt(PrivateKey privateKeyReceiver, PublicKey publicKeySender)
-    {
-        try
-        {
-            if (publicKeySender != null)
-            {
-                boolean verified = verifySignature(this.signature, this.content, publicKeySender);
-                if (!verified)
-                {
-                    System.out.println("Signature couldn't be verified");
-                    return null;
-                }
-            }
-            SecretKey secretKey = decryptRSA(this.symmetricKey, privateKeyReceiver);
-            return (T) decryptAES(this.content, secretKey, new IvParameterSpec(this.initializationVector));
-        }
-        catch (Exception e)
-        {
-            System.out.println(e);
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static SecretKey decryptRSA(byte[] symmetricKey, PrivateKey privateKey) throws Exception
@@ -173,10 +170,39 @@ public class Sendable<T extends Serializable> implements Serializable
         return iv;
     }
 
+    /*------------------------------------------------------------------*\
+    |*							Private Methods					    	*|
+    \*------------------------------------------------------------------*/
+
+    private void encrypt(T content, PublicKey publicKeyReceiver, PrivateKey privateKeySender)
+    {
+        try
+        {
+            SecretKey key = generateKey();
+            this.initializationVector = generateIv();
+            this.content = encryptAES(content, key, new IvParameterSpec(initializationVector));
+            this.symmetricKey = encryptRSA(key, publicKeyReceiver);
+            this.signature = sign(this.content, privateKeySender);
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    /*------------------------------------------------------------------*\
+    |*							Private Attributes						*|
+    \*------------------------------------------------------------------*/
+
+    // Tools
     private byte[] content;
     private byte[] symmetricKey;
     private byte[] initializationVector;
     private byte[] signature;
+
+    /*------------------------------*\
+    |*			  Static		   	*|
+    \*------------------------------*/
 
     private final static String AES_ALGORITHM = "AES/CBC/PKCS5Padding";
     private final static String RSA_ALGORITHM = "RSA/ECB/PKCS1Padding";
