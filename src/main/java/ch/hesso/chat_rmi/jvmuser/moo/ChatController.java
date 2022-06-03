@@ -267,7 +267,7 @@ public class ChatController
         PublicKey publicKey = this.keyPair.getPublic();
 
         // Create the local user and the local chat
-        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username, macAddress, publicKey.getEncoded()), publicKey); // time guarantee unicity if users with same name
+        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username, macAddress, publicKey.getEncoded()), publicKey);
         this.chatLocal = new Chat();
 
         // Share the chatLocal on the local url (RMI)
