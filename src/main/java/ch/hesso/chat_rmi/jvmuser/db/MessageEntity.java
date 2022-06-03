@@ -1,6 +1,8 @@
 package ch.hesso.chat_rmi.jvmuser.db;
 
+import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
 import ch.hesso.chat_rmi.jvmuser.moo.Message;
+import ch.hesso.chat_rmi.jvmuser.moo.Sendable;
 import ch.hesso.chat_rmi.jvmuser.moo.User;
 import io.objectbox.annotation.*;
 import io.objectbox.converter.PropertyConverter;
@@ -25,8 +27,11 @@ public class MessageEntity
     @Convert(converter = UserConverter.class, dbType = String.class)
     public User receiver;
 
-    @Convert(converter = MessageConverter.class, dbType = String.class)
-    public Message message;
+    /*@Convert(converter = MessageConverter.class, dbType = String.class)
+    public Message message;*/
+
+    @Convert(converter = SendableConverter.class, dbType = String.class)
+    public Sendable<Message> sendable;
 
     @Index
     public Date date;
@@ -35,24 +40,25 @@ public class MessageEntity
     @Unique(onConflict = ConflictStrategy.REPLACE)
     public String uniqueMessageID;
 
-    /*------------------------------------------------------------------*\
-    |*							Constructors							*|
-    \*------------------------------------------------------------------*/
-
-    public MessageEntity(long id, User sender, User receiver, Message message, Date date, String uniqueMessageID)
+    public MessageEntity(long id, User sender, User receiver, Sendable<Message> sendable, Date date, String uniqueMessageID)
     {
         this.id = id;
         this.sender = sender;
         this.receiver = receiver;
-        this.message = message;
+        this.sendable = sendable;
         this.date = date;
 
-        this.uniqueMessageID = String.join(" ", new String[]{sender.getUsername(), receiver.getUsername(), message.getText(), date.toString()});
+        try {
+            this.uniqueMessageID = String.join(" ", new String[]{sender.getUsername(), receiver.getUsername(), Integer.toString(sendable.hashCode()), date.toString()});
+        } catch (Exception e) {
+            this.uniqueMessageID = "";
+        }
     }
 
-    public MessageEntity(User sender, User receiver, Message message)
+    public MessageEntity(User sender, User receiver, Sendable<Message> sendable)
     {
-        this(0, sender, receiver, message, new Date(), "");
+
+        this(0, sender, receiver, sendable, new Date(), "");
     }
 
     /*------------------------------------------------------------------*\
@@ -64,7 +70,11 @@ public class MessageEntity
         @Override
         public User convertToEntityProperty(String string)
         {
-            return User.getUser(string);
+            try {
+                return User.getUser(string);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @Override
@@ -74,18 +84,25 @@ public class MessageEntity
         }
     }
 
-    public static class MessageConverter implements PropertyConverter<Message, String>
+    public static class SendableConverter implements PropertyConverter<Sendable<Message>, String>
     {
+
         @Override
-        public Message convertToEntityProperty(String string)
-        {
-            return Message.getMessage(string);
+        public Sendable convertToEntityProperty(String s) {
+            try {
+                return (Sendable) CryptoHelper.StringToObject(s);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @Override
-        public String convertToDatabaseValue(Message message)
-        {
-            return Message.getString(message);
+        public String convertToDatabaseValue(Sendable sendable) {
+            try {
+                return CryptoHelper.ObjectToString(sendable);
+            } catch (Exception e) {
+                return "";
+            }
         }
     }
 

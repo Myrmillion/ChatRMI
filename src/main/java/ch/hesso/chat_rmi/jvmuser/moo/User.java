@@ -5,7 +5,10 @@ import ch.hearc.tools.rmi.RmiURL;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.KeyFactory;
 import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Objects;
 
 public class User implements Serializable
 {
@@ -32,7 +35,12 @@ public class User implements Serializable
     @Override
     public String toString()
     {
-        return this.username;
+        //return this.username;
+        return "<html><div style='text-align: center; font-size: 14px'><b>" + getUsername() + "</b><span style='color: gray; font-size: 6px'>" + getId() + "</span></div></html>";
+    }
+
+    public String getHtml() {
+        return "<span style='font-size: 14px'><b>" + getUsername() + "</b><span style='color: gray; font-size: 6px'>" + getId() + "</span></span>";
     }
 
     /*------------------------------*\
@@ -52,16 +60,11 @@ public class User implements Serializable
     }
 
     @Override
-    public boolean equals(Object obj2)
-    {
-        if (obj2 instanceof User)
-        {
-            return isEquals((User) obj2);
-        }
-        else
-        {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return username.equals(user.username) && Objects.equals(publicKey, user.publicKey);
     }
 
     @Override
@@ -90,6 +93,10 @@ public class User implements Serializable
         return publicKey;
     }
 
+    public String getId() {
+        return "#" + publicKey.hashCode();
+    }
+
     /*------------------------------*\
     |*			Converter			*|
     \*------------------------------*/
@@ -97,12 +104,12 @@ public class User implements Serializable
     public static User getUser(String string)
     {
         String[] tabSplit = string.split(",");
-        return new User(tabSplit[0], getRmiURL(tabSplit[1]));
+        return new User(tabSplit[0], getRmiURL(tabSplit[1]), getPublicKey(tabSplit[2]));
     }
 
     public static String getString(User user)
     {
-        return user.getUsername() + "," + getString(user.getRmiURL());
+        return user.getUsername() + "," + getString(user.getRmiURL()) + "," + getString(user.getPublicKey());
     }
 
     /*------------------------------------------------------------------*\
@@ -113,7 +120,7 @@ public class User implements Serializable
     |*			Converter			*|
     \*------------------------------*/
 
-    private static RmiURL getRmiURL(String string)
+    public static RmiURL getRmiURL(String string)
     {
         try
         {
@@ -129,9 +136,33 @@ public class User implements Serializable
         }
     }
 
-    private static String getString(RmiURL rmiUrl)
+    public static String getString(RmiURL rmiUrl)
     {
         return rmiUrl.getObjectId() + ";" + rmiUrl.getInetAdressName() + ";" + rmiUrl.getPort();
+    }
+
+    public static String getString(PublicKey publicKey) {
+        StringBuilder builder = new StringBuilder();
+        for (byte b: publicKey.getEncoded()) {
+            builder.append(b + ";");
+        }
+        builder.deleteCharAt(builder.length()-1);
+        return builder.toString();
+    }
+
+    public static PublicKey getPublicKey(String string) {
+        String[] strings = string.split(";");
+        byte[] bytes = new byte[strings.length];
+
+        for (int i = 0; i < strings.length; i++) {
+            bytes[i] = Byte.parseByte(strings[i]);
+        }
+        try {
+            return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(bytes));
+        } catch (Exception e) {
+            System.err.println("[JChat] : Fail to reconstruct PublicKey from " + string);
+        }
+        return null;
     }
 
     /*------------------------------------------------------------------*\

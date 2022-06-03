@@ -16,6 +16,7 @@ public class UseJMain3
 
     public static void main()
     {
+        //new JFrameChat(new JMain(), "Chat RMI");
         new JFrameChat(new JLogin(), "Chat RMI");
     }
 

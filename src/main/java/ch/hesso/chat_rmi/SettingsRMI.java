@@ -4,7 +4,7 @@ import ch.hearc.tools.rmi.Ports;
 import ch.hearc.tools.rmi.RmiURL;
 import ch.hesso.chat_rmi.jvmregistry.moo.Registry;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.Utils;
-import ch.hesso.chat_rmi.jvmuser.moo.Sendable;
+import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -215,7 +215,7 @@ public class SettingsRMI
                     .forEachOrdered(aByte -> macAddressFormatString.append(String.format("%02X", aByte)));
 
             // Getting the encoded PublicKey in hashed SHA-256 String format
-            Utils.byteStream(Sendable.hash(encodedKey))//
+            Utils.byteStream(CryptoHelper.hash(encodedKey))//
                     .parallel()//
                     .forEachOrdered(aByte -> hashedEncodedKey.append(String.format("%02X", aByte)));
         }

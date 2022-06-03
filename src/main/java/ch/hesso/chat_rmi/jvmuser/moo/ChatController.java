@@ -13,12 +13,13 @@ import io.objectbox.Box;
 import org.javatuples.Pair;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.security.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -75,14 +76,14 @@ public class ChatController
     public List<MessageEntity> retrieveSavedMessages(User userRemote)
     {
         List<MessageEntity> listMessageEntity = this.box.getAll().stream().parallel()//
-                .filter(me -> (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
+                .filter(me -> (me.sender != null && me.receiver != null) && (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
                 .sorted(Comparator.comparing(me -> me.date))//
                 .toList();
 
         System.out.println("[retrieveSavedMessages] : MESSAGES LOADED");
         listMessageEntity.forEach(me ->
         {
-            System.out.println(me.id + "|" + me.message.getText() + "|" + me.date.toString() + "|");
+            System.out.println(me.id + "|" + "|" + me.date.toString() + "|");
         });
 
         return listMessageEntity;
@@ -117,10 +118,10 @@ public class ChatController
                 JDialog.setDefaultLookAndFeelDecorated(true);
 
                 // Prepare the options that will be displayed in the dialog window
-                JOptionPane optionPane = new JOptionPane(userFrom + " wishes the start a chat with you?\nDo you agree ?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+                JOptionPane optionPane = new JOptionPane("<html>" + userFrom.getHtml() + " wishes the start a chat with you?\nDo you agree ?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
 
                 // Create the dialog window and set its properties
-                JDialog dialog = optionPane.createDialog("Chat request from " + userFrom);
+                JDialog dialog = optionPane.createDialog("Chat request from " + userFrom.getUsername());
                 dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
                 dialog.pack();
                 dialog.setLocationRelativeTo(this.parentFrame);
@@ -158,13 +159,19 @@ public class ChatController
         // Update the GUI
         this.mapUserChattingWith.get(userFrom).getValue1().updateGUI(message);
 
+
         // Add this message information in the DB
-        this.box.put(new MessageEntity(userFrom, userLocal, message));
+        this.box.put(new MessageEntity(userFrom, userLocal, new Sendable<Message>(message, userLocal)));
     }
 
     public PrivateKey getPrivateKey()
     {
         return keyPair.getPrivate();
+    }
+
+    public User getUserLocal()
+    {
+        return userLocal;
     }
 
     public void disconnectChat(User userFrom)
@@ -198,12 +205,12 @@ public class ChatController
 
                     if (chatRemote.askConnection(new Sendable<User>(this.userLocal, userTo))) // [CONNECTION ACCEPTED]
                     {
-                        String firstMessage = userTo + " has accepted to chat with you !";
+                        //String firstMessage = userTo.getUsername() + userTo.getId() + " has accepted to chat with you !";
 
-                        JChat jChat = new JChat(this.userLocal, userTo, firstMessage);
+                        JChat jChat = new JChat(this.userLocal, userTo, true);
                         this.mapUserChattingWith.put(userTo, new Pair<Chat_I, JChat>(chatRemote, jChat));
 
-                        prepareJFrameChat(jChat, userLocal.toString(), userTo.toString());
+                        prepareJFrameChat(jChat, userLocal.getUsername(), userTo.getUsername());
                     }
                 }
                 catch (RemoteException | MalformedURLException e)
@@ -225,9 +232,9 @@ public class ChatController
             this.mapUserChattingWith.get(userTo).getValue0().setMessage(new Sendable<User>(this.userLocal, userTo), new Sendable<Message>(message, userTo));
 
             // Add this message information in the DB
-            this.box.put(new MessageEntity(userLocal, userTo, message));
+            this.box.put(new MessageEntity(userLocal, userTo, new Sendable<Message>(message, userLocal)));
 
-            System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
+            //System.out.println(this.box.getAll().stream().map(me -> me.message.getText()).toList());
         }
         catch (RemoteException ex)
         {
@@ -323,13 +330,13 @@ public class ChatController
     {
         try
         {
-            String firstMessage = "You accepted to chat with " + userFrom + " !";
+            //String firstMessage = "You accepted to chat with " + userFrom.getUsername() + userFrom.getId() + " !";
 
             Chat_I chatRemote = (Chat_I) Rmis.connectRemoteObjectSync(userFrom.getRmiURL());
-            JChat jChat = new JChat(this.userLocal, userFrom, firstMessage);
+            JChat jChat = new JChat(this.userLocal, userFrom, false);
             this.mapUserChattingWith.put(userFrom, new Pair<Chat_I, JChat>(chatRemote, jChat));
 
-            prepareJFrameChat(jChat, this.userLocal.toString(), userFrom.toString());
+            prepareJFrameChat(jChat, this.userLocal.getUsername(), userFrom.getUsername());
         }
         catch (RemoteException | MalformedURLException e)
         {

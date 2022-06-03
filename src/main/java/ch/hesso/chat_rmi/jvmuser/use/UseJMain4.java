@@ -1,16 +1,17 @@
 package ch.hesso.chat_rmi.jvmuser.use;
 
+import ch.hesso.chat_rmi.jvmuser.db.MessageEntity;
+import ch.hesso.chat_rmi.jvmuser.db.MyObjectBox;
 import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
-import ch.hesso.chat_rmi.jvmuser.moo.Sendable;
+import ch.hesso.chat_rmi.jvmuser.moo.User;
+import io.objectbox.Box;
 import org.junit.Test;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
+import java.security.*;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 public class UseJMain4
@@ -68,11 +69,11 @@ public class UseJMain4
         KeyPair user1 = generator.generateKeyPair();
         KeyPair user2 = generator.generateKeyPair();
 
-        SecretKey secretKey = Sendable.generateKey();
-        byte[] encrypted = Sendable.encryptRSA(secretKey, user2.getPublic());
+        SecretKey secretKey = CryptoHelper.generateKey();
+        byte[] encrypted = CryptoHelper.encryptRSA(secretKey, user2.getPublic());
         System.out.println(encrypted.length);
 
-        SecretKey secretKey1 = Sendable.decryptRSA(encrypted, user2.getPrivate());
+        SecretKey secretKey1 = CryptoHelper.decryptRSA(encrypted, user2.getPrivate());
         System.out.println(secretKey.hashCode());
         System.out.println(secretKey1.hashCode());
     }
@@ -102,6 +103,25 @@ public class UseJMain4
         byte[] b3 = new byte[]{14, 24, 34};
         byte[] r = CryptoHelper.appendBytes(b1, b2, b3);
         System.out.println(Arrays.toString(r));
+    }
+
+    @Test
+    public void testConverter() throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        KeyPair user1 = generator.generateKeyPair();
+
+        String test = User.getString(user1.getPublic());
+        System.out.println(test);
+        PublicKey pk1 = User.getPublicKey(test);
+        System.out.println(Objects.equals(pk1, user1.getPublic()));
+    }
+
+    @Test
+    public void resetDatabase() throws Exception {
+        Box<MessageEntity> box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
+        box.removeAll();
+
     }
 
 
