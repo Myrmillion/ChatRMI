@@ -255,16 +255,19 @@ public class ChatController
 
     public void prepareRMI(String username, char[] password) throws MalformedURLException, RemoteException, GeneralSecurityException
     {
+        // Get the MAC Address of this computer
+        byte[] macAddress = SettingsRMI.getMacAddress();
+
         // Generate public and private key for this user
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
-        this.keyPair = CryptoHelper.getKeyPair(username, password);
+        this.keyPair = CryptoHelper.getKeyPair(username, password, macAddress);
 
         // Get Public Key that will be used directly after
         PublicKey publicKey = this.keyPair.getPublic();
 
         // Create the local user and the local chat
-        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username, publicKey.getEncoded()), publicKey); // time guarantee unicity if users with same name
+        this.userLocal = new User(username, SettingsRMI.CHAT_RMI_URL(username, macAddress, publicKey.getEncoded()), publicKey); // time guarantee unicity if users with same name
         this.chatLocal = new Chat();
 
         // Share the chatLocal on the local url (RMI)

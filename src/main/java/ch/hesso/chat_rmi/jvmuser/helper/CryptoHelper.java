@@ -16,9 +16,9 @@ public class CryptoHelper
 {
     public static final byte[] salt = new byte[]{101, -20, 105, 86, 82, 90, -101, -5, 122, 46, 13, 112, 69, -101, -5, -18, 5, -106, 107, -84, 79, -94, -122, -72, -96, 120, -93, -81, -16, 76, 74, 73, 59, -59, 67, -128, 83, 91, -23, 72, -3, -17, 54, 100, -66, -69, 43, 89, -113, -38, -96, -64, -100, -41, 123, 53, -121, -32, 33, -76, 67, -126, 9, 118};
 
-    public static KeyPair getKeyPair(String username, char[] password) throws GeneralSecurityException
+    public static KeyPair getKeyPair(String username, char[] password, byte[] macAddress) throws GeneralSecurityException
     {
-        byte[] seed = appendBytes(username.toLowerCase().getBytes(UTF_8), salt, toBytes(password));
+        byte[] seed = appendBytes(username.toLowerCase().getBytes(UTF_8), salt, toBytes(password), macAddress);
 
         SecureRandom rnd = SecureRandom.getInstance("SHA1PRNG");
         rnd.setSeed(seed);

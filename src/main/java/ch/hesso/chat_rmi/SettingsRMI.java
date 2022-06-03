@@ -8,6 +8,8 @@ import ch.hesso.chat_rmi.jvmuser.moo.Sendable;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 /**
  * <pre>
@@ -176,22 +178,41 @@ public class SettingsRMI
 	\*------------------------------------------------------------------*/
 
     /*------------------------------*\
+    |*			  Static		   	*|
+    \*------------------------------*/
+
+    public static byte[] getMacAddress()
+    {
+        try
+        {
+            return NetworkInterface.getByInetAddress(InetAddress.getLocalHost()).getHardwareAddress();
+        }
+        catch (SocketException | UnknownHostException e)
+        {
+            System.err.println("\n[SettingsRMI] : getMacAddress : failed to obtain MAC Address\n");
+            System.exit(0); // 0: ok, -1: ko
+            return null;
+        }
+    }
+
+
+    /*------------------------------*\
 	|*				Chat     		*|
 	\*------------------------------*/
 
     private static final int CHAT_RMI_PORT = Ports.PORT_RMI_DEFAUT; // 1099
 
-    public static RmiURL CHAT_RMI_URL(String username, byte[] encodedKey) // CHAT_RMI_ID is guaranteeing the unicity
+    public static RmiURL CHAT_RMI_URL(String username, byte[] macAddress, byte[] encodedKey) // CHAT_RMI_ID is guaranteeing the unicity
     {
-        StringBuilder macAddress = new StringBuilder("");
+        StringBuilder macAddressFormatString = new StringBuilder("");
         StringBuilder hashedEncodedKey = new StringBuilder("");
 
         try
         {
             // Getting the MAC Address in String format
-            Utils.byteStream(NetworkInterface.getByInetAddress(InetAddress.getLocalHost()).getHardwareAddress())//
+            Utils.byteStream(macAddress)//
                     .parallel()//
-                    .forEachOrdered(aByte -> macAddress.append(String.format("%02X", aByte)));
+                    .forEachOrdered(aByte -> macAddressFormatString.append(String.format("%02X", aByte)));
 
             // Getting the encoded PublicKey in hashed SHA-256 String format
             Utils.byteStream(Sendable.hash(encodedKey))//
@@ -200,12 +221,12 @@ public class SettingsRMI
         }
         catch (Exception e)
         {
-            System.err.println("\n[SettingsRMI] : CHAT_RMI_URL : failed to obtain MAC Address\n");
+            System.err.println("\n[SettingsRMI] : CHAT_RMI_URL : failed to encode with SHA-256\n");
             System.exit(0); // 0: ok, -1: ko
             return null;
         }
 
-        String CHAT_RMI_ID = username + "-" + macAddress + "-" + hashedEncodedKey;
+        String CHAT_RMI_ID = username + "-" + macAddressFormatString + "-" + hashedEncodedKey;
 
         return new RmiURL(CHAT_RMI_ID, chatIP(), CHAT_RMI_PORT);
     }
