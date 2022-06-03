@@ -28,8 +28,10 @@
 hs_err_pid*
 replay_pid*
 
+.gitignore.bak
 objectbox-messages-db/
 objectbox-jni-windows-x64.dll
+libobjectbox-jni-macos.dylib
 objectbox-model.json
 objectbox-model.json.bak
 
