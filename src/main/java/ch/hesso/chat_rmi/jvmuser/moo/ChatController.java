@@ -23,6 +23,7 @@ import java.security.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 public class ChatController
 {
@@ -76,18 +77,18 @@ public class ChatController
 
     public List<MessageEntity> retrieveSavedMessages(User userRemote)
     {
-        System.out.println("LOAD MESSAGES");
-        this.box.getAll().forEach(me ->
-        {
-            System.out.println(me.id);
-            System.out.println(me.message.getText());
-            System.out.println(me.date.toString());
-        });
-
-        return this.box.getAll().stream().parallel()//
+        List<MessageEntity> listMessageEntity = this.box.getAll().stream().parallel()//
                 .filter(me -> (me.sender.equals(userRemote) && me.receiver.equals(this.userLocal)) || (me.sender.equals(this.userLocal) && me.receiver.equals(userRemote)))//
                 .sorted(Comparator.comparing(me -> me.date))//
                 .toList();
+
+        System.out.println("[retrieveSavedMessages] : MESSAGES LOADED");
+        listMessageEntity.forEach(me ->
+        {
+            System.out.println(me.id + "|" + me.message.getText() + "|" + me.date.toString() + "|");
+        });
+
+        return listMessageEntity;
     }
 
     /*------------------------------*\
@@ -255,7 +256,8 @@ public class ChatController
     |*	     Utils      *|
     \*------------------*/
 
-    public void prepareRMI(String username, char[] password) throws MalformedURLException, RemoteException, GeneralSecurityException {
+    public void prepareRMI(String username, char[] password) throws MalformedURLException, RemoteException, GeneralSecurityException
+    {
         // Generate public and private key for this user
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);

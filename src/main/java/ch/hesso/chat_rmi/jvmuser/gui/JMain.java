@@ -21,18 +21,19 @@ import java.time.LocalTime;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-public class JMain extends Box {
+public class JMain extends Box
+{
 
 	/*------------------------------------------------------------------*\
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-//    Will remove in the next commit !!!
-//
-//    public JMain()
-//    {
-//        this("Anon", "Ymous".toCharArray());
-//    }
+    //    Will remove in the next commit !!!
+    //
+    //    public JMain()
+    //    {
+    //        this("Anon", "Ymous".toCharArray());
+    //    }
 
     public JMain(String username, char[] password)
     {
@@ -57,14 +58,19 @@ public class JMain extends Box {
 	|*							Private Methods						    *|
 	\*------------------------------------------------------------------*/
 
-    private void updateListModel() {
+    private void updateListModel()
+    {
         this.listAvailableUsers.clear();
 
-        try {
-            for (User user : this.chatController.getListAvailableUsers()) {
+        try
+        {
+            for (User user : this.chatController.getListAvailableUsers())
+            {
                 this.listAvailableUsers.addElement(user);
             }
-        } catch (RemoteException e) {
+        }
+        catch (RemoteException e)
+        {
             System.err.println("[JMain] : updateListModel : fail");
             e.printStackTrace();
         }
@@ -110,21 +116,28 @@ public class JMain extends Box {
         });
 
         // Adding a listener to the Ancestor
-        addAncestorListener(new AncestorAdapter() {
+        addAncestorListener(new AncestorAdapter()
+        {
             // Called once the Ancestor is made visible (so we are sure it exists and is instantiated)
             @Override
-            public void ancestorAdded(AncestorEvent event) {
+            public void ancestorAdded(AncestorEvent event)
+            {
                 JMain source = (JMain) event.getSource();
 
                 // Ancestor JFrame's default close operation
                 ((JFrame) SwingUtilities.getWindowAncestor(source)).setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-                // Ancestor Window "closed" behaviour (simply when dispose is called upon the window)
-                SwingUtilities.getWindowAncestor(source).addWindowListener(new WindowAdapter() {
-                    public void windowClosing(WindowEvent e) {
-                        try {
+                // Ancestor Window "closed" behaviour (simply when exit is called upon the window)
+                SwingUtilities.getWindowAncestor(source).addWindowListener(new WindowAdapter()
+                {
+                    public void windowClosing(WindowEvent e)
+                    {
+                        try
+                        {
                             chatController.removeLocalUserFromRegistry();
-                        } catch (RemoteException ex) {
+                        }
+                        catch (RemoteException ex)
+                        {
                             System.err.println("[JMain] : AncestorWindow-windowClosing : fail");
                             ex.printStackTrace();
                         }
@@ -134,7 +147,8 @@ public class JMain extends Box {
         });
     }
 
-    private void appearance() {
+    private void appearance()
+    {
         // Labels
         this.jLabelChoice.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_TITLE_SIZE));
 
