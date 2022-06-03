@@ -106,7 +106,8 @@ public class UseJMain4
     }
 
     @Test
-    public void testConverter() throws Exception {
+    public void testConverter() throws Exception
+    {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
         KeyPair user1 = generator.generateKeyPair();
@@ -118,7 +119,8 @@ public class UseJMain4
     }
 
     @Test
-    public void resetDatabase() throws Exception {
+    public void resetDatabase() throws Exception
+    {
         Box<MessageEntity> box = MyObjectBox.builder().name("objectbox-messages-db").build().boxFor(MessageEntity.class);
         box.removeAll();
 

@@ -54,9 +54,12 @@ public class JMain extends Box
 
         try
         {
-            if (this.chatController.getListAvailableUsers().size() == this.listAvailableUsers.size()) {
-                for (int i = 0; i < this.listAvailableUsers.size(); i++) {
-                    if (this.chatController.getListAvailableUsers().get(i).isEquals(this.listAvailableUsers.get(i))) {
+            if (this.chatController.getListAvailableUsers().size() == this.listAvailableUsers.size())
+            {
+                for (int i = 0; i < this.listAvailableUsers.size(); i++)
+                {
+                    if (this.chatController.getListAvailableUsers().get(i).isEquals(this.listAvailableUsers.get(i)))
+                    {
                         return;
                     }
                 }
@@ -145,7 +148,8 @@ public class JMain extends Box
             }
         });
 
-        jDisconnect.addActionListener(e -> {
+        jDisconnect.addActionListener(e ->
+        {
             try
             {
                 updateInterval.stop();
@@ -159,7 +163,8 @@ public class JMain extends Box
             JFrameChat.mainJFrame.changePage(new JLogin());
         });
 
-        updateInterval = new Timer(1000, e -> {
+        updateInterval = new Timer(1000, e ->
+        {
             updateListModel();
         });
         updateInterval.start();
@@ -196,7 +201,7 @@ public class JMain extends Box
         {
             this.chatController.prepareRMI(username, password);
             User u = chatController.getUserLocal();
-            this.jConnectedAs.setText("<html><div style='text-align: center; font-size: 14px'>Connected as <b>" + u.getUsername() + "</b><span style='color: gray; font-size: 6px'>" + u.getId()+"</span></div></html>");
+            this.jConnectedAs.setText("<html><div style='text-align: center; font-size: 14px'>Connected as <b>" + u.getUsername() + "</b><span style='color: gray; font-size: 6px'>" + u.getId() + "</span></div></html>");
         }
         catch (Exception ex)
         {

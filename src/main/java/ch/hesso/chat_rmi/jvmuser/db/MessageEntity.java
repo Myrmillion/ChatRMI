@@ -27,9 +27,6 @@ public class MessageEntity
     @Convert(converter = UserConverter.class, dbType = String.class)
     public User receiver;
 
-    /*@Convert(converter = MessageConverter.class, dbType = String.class)
-    public Message message;*/
-
     @Convert(converter = SendableConverter.class, dbType = String.class)
     public Sendable<Message> sendable;
 
@@ -48,9 +45,12 @@ public class MessageEntity
         this.sendable = sendable;
         this.date = date;
 
-        try {
+        try
+        {
             this.uniqueMessageID = String.join(" ", new String[]{sender.getUsername(), receiver.getUsername(), Integer.toString(sendable.hashCode()), date.toString()});
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             this.uniqueMessageID = "";
         }
     }
@@ -65,14 +65,21 @@ public class MessageEntity
     |*					    	  Converters			    			*|
     \*------------------------------------------------------------------*/
 
+    /*------------------------------*\
+    |*		       User		    	*|
+    \*------------------------------*/
+
     public static class UserConverter implements PropertyConverter<User, String>
     {
         @Override
         public User convertToEntityProperty(String string)
         {
-            try {
+            try
+            {
                 return User.getUser(string);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 return null;
             }
         }
@@ -84,23 +91,34 @@ public class MessageEntity
         }
     }
 
+    /*------------------------------*\
+    |*		     Sendable	    	*|
+    \*------------------------------*/
+
     public static class SendableConverter implements PropertyConverter<Sendable<Message>, String>
     {
-
         @Override
-        public Sendable convertToEntityProperty(String s) {
-            try {
+        public Sendable convertToEntityProperty(String s)
+        {
+            try
+            {
                 return (Sendable) CryptoHelper.StringToObject(s);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 return null;
             }
         }
 
         @Override
-        public String convertToDatabaseValue(Sendable sendable) {
-            try {
+        public String convertToDatabaseValue(Sendable sendable)
+        {
+            try
+            {
                 return CryptoHelper.ObjectToString(sendable);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 return "";
             }
         }

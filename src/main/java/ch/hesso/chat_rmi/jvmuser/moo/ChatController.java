@@ -72,7 +72,6 @@ public class ChatController
     |*							Public Methods 							*|
     \*------------------------------------------------------------------*/
 
-
     public List<MessageEntity> retrieveSavedMessages(User userRemote)
     {
         List<MessageEntity> listMessageEntity = this.box.getAll().stream().parallel()//

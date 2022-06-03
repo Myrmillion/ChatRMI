@@ -39,7 +39,8 @@ public class User implements Serializable
         return "<html><div style='text-align: center; font-size: 14px'><b>" + getUsername() + "</b><span style='color: gray; font-size: 6px'>" + getId() + "</span></div></html>";
     }
 
-    public String getHtml() {
+    public String getHtml()
+    {
         return "<span style='font-size: 14px'><b>" + getUsername() + "</b><span style='color: gray; font-size: 6px'>" + getId() + "</span></span>";
     }
 
@@ -60,9 +61,12 @@ public class User implements Serializable
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         User user = (User) o;
         return username.equals(user.username) && Objects.equals(publicKey, user.publicKey);
     }
@@ -93,7 +97,8 @@ public class User implements Serializable
         return publicKey;
     }
 
-    public String getId() {
+    public String getId()
+    {
         return "#" + publicKey.hashCode();
     }
 
@@ -141,25 +146,32 @@ public class User implements Serializable
         return rmiUrl.getObjectId() + ";" + rmiUrl.getInetAdressName() + ";" + rmiUrl.getPort();
     }
 
-    public static String getString(PublicKey publicKey) {
+    public static String getString(PublicKey publicKey)
+    {
         StringBuilder builder = new StringBuilder();
-        for (byte b: publicKey.getEncoded()) {
+        for (byte b : publicKey.getEncoded())
+        {
             builder.append(b + ";");
         }
-        builder.deleteCharAt(builder.length()-1);
+        builder.deleteCharAt(builder.length() - 1);
         return builder.toString();
     }
 
-    public static PublicKey getPublicKey(String string) {
+    public static PublicKey getPublicKey(String string)
+    {
         String[] strings = string.split(";");
         byte[] bytes = new byte[strings.length];
 
-        for (int i = 0; i < strings.length; i++) {
+        for (int i = 0; i < strings.length; i++)
+        {
             bytes[i] = Byte.parseByte(strings[i]);
         }
-        try {
+        try
+        {
             return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(bytes));
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.err.println("[JChat] : Fail to reconstruct PublicKey from " + string);
         }
         return null;
