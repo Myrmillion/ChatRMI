@@ -31,7 +31,7 @@ public class JCentersV extends Box
     private void geometrie()
     {
         add(Box.createVerticalGlue());
-        for(JComponent jComponent :this.jComponents)
+        for (JComponent jComponent : this.jComponents)
         {
             add(jComponent);
         }

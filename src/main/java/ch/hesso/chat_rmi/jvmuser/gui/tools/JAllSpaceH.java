@@ -33,7 +33,7 @@ public class JAllSpaceH extends Box
     {
         add(createHorizontalStrut(50));
 
-        for(JComponent jComponent :this.jComponents)
+        for (JComponent jComponent : this.jComponents)
         {
             add(jComponent, BorderLayout.CENTER);
         }

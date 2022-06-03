@@ -18,8 +18,13 @@ public class Chat implements Chat_I
     |*							Public Methods 							*|
     \*------------------------------------------------------------------*/
 
+    /*------------------------------*\
+    |*		   askConnection		*|
+    \*------------------------------*/
 
-    public Boolean askConnection(Sendable<User> userFrom) throws RemoteException {
+    @Override
+    public Boolean askConnection(Sendable<User> userFrom) throws RemoteException
+    {
         return askConnection(userFrom.decrypt(chatController.getPrivateKey()));
     }
 
@@ -27,6 +32,10 @@ public class Chat implements Chat_I
     {
         return this.chatController.acceptOrRefuseConnection(userFrom);
     }
+
+    /*------------------------------*\
+    |*		    setMessage		    *|
+    \*------------------------------*/
 
     @Override
     public void setMessage(Sendable<User> userFrom, Sendable<Message> message) throws RemoteException
@@ -39,6 +48,10 @@ public class Chat implements Chat_I
     {
         this.chatController.receiveMessage(userFrom, message);
     }
+
+    /*------------------------------*\
+    |*		  disconnectChat	    *|
+    \*------------------------------*/
 
     @Override
     public void disconnectChat(Sendable<User> userFrom) throws RemoteException

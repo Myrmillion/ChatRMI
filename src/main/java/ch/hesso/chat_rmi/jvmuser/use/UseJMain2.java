@@ -1,7 +1,6 @@
 package ch.hesso.chat_rmi.jvmuser.use;
 
 import ch.hesso.chat_rmi.jvmuser.gui.JLogin;
-import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
 
 public class UseJMain2

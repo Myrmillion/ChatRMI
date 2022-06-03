@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.PublicKey;
-import java.util.Arrays;
 
 public class User implements Serializable
 {

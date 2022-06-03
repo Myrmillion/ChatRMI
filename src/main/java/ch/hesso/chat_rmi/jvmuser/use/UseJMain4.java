@@ -1,17 +1,11 @@
 package ch.hesso.chat_rmi.jvmuser.use;
 
 import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
-import ch.hesso.chat_rmi.jvmuser.moo.Message;
 import ch.hesso.chat_rmi.jvmuser.moo.Sendable;
-import ch.hesso.chat_rmi.jvmuser.moo.User;
 import org.junit.Test;
 
 import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -84,14 +78,16 @@ public class UseJMain4
     }
 
     @Test
-    public void generate64Bytes() {
+    public void generate64Bytes()
+    {
         int length = 64;
         Random r = new Random();
         byte[] salt = new byte[length];
         r.nextBytes(salt);
 
         StringBuilder builder = new StringBuilder();
-        for (byte b : salt) {
+        for (byte b : salt)
+        {
             //builder.append("0x"+ String.format("%02X", b) + ", ");
             builder.append(b + ", ");
         }
@@ -99,14 +95,14 @@ public class UseJMain4
     }
 
     @Test
-    public void testAppendByte() {
-        byte[] b1 = new byte[] {1,2,3};
-        byte[] b2 = new byte[] {11,21,31};
-        byte[] b3 = new byte[] {14,24,34};
+    public void testAppendByte()
+    {
+        byte[] b1 = new byte[]{1, 2, 3};
+        byte[] b2 = new byte[]{11, 21, 31};
+        byte[] b3 = new byte[]{14, 24, 34};
         byte[] r = CryptoHelper.appendBytes(b1, b2, b3);
         System.out.println(Arrays.toString(r));
     }
-
 
 
 }

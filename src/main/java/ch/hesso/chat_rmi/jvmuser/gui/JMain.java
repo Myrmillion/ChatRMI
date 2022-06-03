@@ -4,20 +4,13 @@ import ch.hesso.chat_rmi.SettingsRMI;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.*;
 import ch.hesso.chat_rmi.jvmuser.moo.User;
 import ch.hesso.chat_rmi.jvmuser.moo.ChatController;
-import jdk.jshell.execution.Util;
 
-import java.util.*;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.MalformedURLException;
 import java.rmi.RemoteException;
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 

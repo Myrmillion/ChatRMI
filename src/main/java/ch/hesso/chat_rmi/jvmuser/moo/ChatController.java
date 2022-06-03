@@ -10,8 +10,6 @@ import ch.hesso.chat_rmi.jvmuser.gui.JMain;
 import ch.hesso.chat_rmi.jvmuser.gui.tools.JFrameChat;
 import ch.hesso.chat_rmi.jvmuser.helper.CryptoHelper;
 import io.objectbox.Box;
-import io.objectbox.BoxStore;
-import io.objectbox.query.QueryBuilder;
 import org.javatuples.Pair;
 
 import javax.swing.*;
@@ -23,7 +21,6 @@ import java.security.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 public class ChatController
 {

@@ -1,7 +1,6 @@
 package ch.hesso.chat_rmi.jvmuser.gui;
 
 import ch.hesso.chat_rmi.jvmuser.gui.tools.*;
-import ch.hesso.chat_rmi.jvmuser.moo.User;
 
 import javax.swing.*;
 import java.awt.*;

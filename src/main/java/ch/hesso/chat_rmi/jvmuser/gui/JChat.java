@@ -9,7 +9,6 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.rmi.RemoteException;
 import java.util.List;
 
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;

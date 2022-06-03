@@ -1,4 +1,3 @@
-
 package ch.hesso.chat_rmi.jvmuser.gui.tools;
 
 import javax.swing.Box;
@@ -6,22 +5,22 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 
 public class JCenterH extends Box
-	{
+{
 
 	/*------------------------------------------------------------------*\
 	|*							Constructeurs							*|
 	\*------------------------------------------------------------------*/
 
-	public JCenterH(JComponent jComponent)
-		{
-		super(BoxLayout.X_AXIS);
+    public JCenterH(JComponent jComponent)
+    {
+        super(BoxLayout.X_AXIS);
 
-		this.jComponent = jComponent;
+        this.jComponent = jComponent;
 
-		geometrie();
-		controle();
-		apparence();
-		}
+        geometrie();
+        controle();
+        apparence();
+    }
 
 	/*------------------------------------------------------------------*\
 	|*							Methodes Public							*|
@@ -31,29 +30,29 @@ public class JCenterH extends Box
 	|*							Methodes Private						*|
 	\*------------------------------------------------------------------*/
 
-	private void geometrie()
-		{
-		add(Box.createHorizontalGlue());
-		add(jComponent);
-		add(createHorizontalGlue()); //Pas oblig� de mettre box car d�j� dans un classe Box
-		}
+    private void geometrie()
+    {
+        add(Box.createHorizontalGlue());
+        add(jComponent);
+        add(createHorizontalGlue()); //Pas oblig� de mettre box car d�j� dans un classe Box
+    }
 
-	private void controle()
-		{
-		// rien
-		}
+    private void controle()
+    {
+        // rien
+    }
 
-	private void apparence()
-		{
-		// rien
-		}
+    private void apparence()
+    {
+        // rien
+    }
 
 	/*------------------------------------------------------------------*\
 	|*							Attributs Private						*|
 	\*------------------------------------------------------------------*/
 
-	// inputs
-	private JComponent jComponent;
+    // inputs
+    private JComponent jComponent;
 
-	}
+}
 

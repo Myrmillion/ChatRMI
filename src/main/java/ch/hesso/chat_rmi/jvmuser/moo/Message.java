@@ -1,7 +1,6 @@
 package ch.hesso.chat_rmi.jvmuser.moo;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 public class Message implements Serializable
 {

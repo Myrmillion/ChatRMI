@@ -31,7 +31,7 @@ public class JCentersH extends Box
     private void geometrie()
     {
         add(Box.createHorizontalGlue());
-        for(JComponent jComponent :this.jComponents)
+        for (JComponent jComponent : this.jComponents)
         {
             add(jComponent);
         }
