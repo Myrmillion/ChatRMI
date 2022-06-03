@@ -50,8 +50,6 @@ public class JMain extends Box
 
     private void updateListModel()
     {
-
-
         try
         {
             if (this.chatController.getListAvailableUsers().size() == this.listAvailableUsers.size())
@@ -78,6 +76,28 @@ public class JMain extends Box
         }
     }
 
+    private void login(String username, char[] password)
+    {
+        this.jLabelChoice.setEnabled(true);
+        this.jAvailableUsers.setEnabled(true);
+
+        try
+        {
+            this.chatController.prepareRMI(username, password);
+            User u = chatController.getUserLocal();
+            this.jConnectedAs.setText("<html><div style='text-align: center; font-size: 14px'>Connected as <b>" + u.getUsername() + "</b><span style='color: gray; font-size: 6px'>" + u.getId() + "</span></div></html>");
+        }
+        catch (Exception ex)
+        {
+            System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
+            System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
+            ex.printStackTrace();
+        }
+
+        updateListModel();
+    }
+
+
     /*------------------------------*\
     |*	            GUI	         	*|
     \*------------------------------*/
@@ -100,6 +120,7 @@ public class JMain extends Box
         add(new JCenterH(this.jAskChat));
         add(createVerticalGlue());
         add(new JCenterH(this.jDisconnect));
+        add(createVerticalGlue());
     }
 
     private void control()
@@ -190,27 +211,11 @@ public class JMain extends Box
         this.jAskChat.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_BUTTON_SIZE));
         JComponents.setHeight(this.jAskChat, 50);
         JComponents.setWidth(this.jAskChat, 250);
-    }
 
-    private void login(String username, char[] password)
-    {
-        this.jLabelChoice.setEnabled(true);
-        this.jAvailableUsers.setEnabled(true);
-
-        try
-        {
-            this.chatController.prepareRMI(username, password);
-            User u = chatController.getUserLocal();
-            this.jConnectedAs.setText("<html><div style='text-align: center; font-size: 14px'>Connected as <b>" + u.getUsername() + "</b><span style='color: gray; font-size: 6px'>" + u.getId() + "</span></div></html>");
-        }
-        catch (Exception ex)
-        {
-            System.err.println("[JMain] : jCreate-actionListener : fail : " + SettingsRMI.REGISTRY_RMI_URL);
-            System.err.println("[JMain] : jCreate-actionListener : Please verify that the Registry server is started !");
-            ex.printStackTrace();
-        }
-
-        updateListModel();
+        // Disconnect (Button)
+        this.jDisconnect.setFont(new Font(Font.SANS_SERIF, Font.BOLD, FONT_BUTTON_SIZE));
+        JComponents.setHeight(this.jDisconnect, 38);
+        JComponents.setWidth(this.jDisconnect, 125);
     }
 
 	/*------------------------------------------------------------------*\
