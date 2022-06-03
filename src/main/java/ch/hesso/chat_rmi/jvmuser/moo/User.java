@@ -49,9 +49,6 @@ public class User implements Serializable
         else
         {
             return (this.rmiURL.toString().equals(obj2.rmiURL.toString())) && (this.username.equals(obj2.username));
-
-            // Will be removed next commit :
-            // return (this.username.equals(obj2.username));
         }
     }
 

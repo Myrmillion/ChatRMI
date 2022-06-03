@@ -23,27 +23,6 @@ public class UseJMain
     public static void main()
     {
         new JFrameChat(new JLogin(), "Chat RMI");
-        
-        //        try
-        //        {
-        //            Signature signature = Signature.getInstance("SHA256withRSA");
-        //
-        //            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        //            generator.initialize(2048);
-        //            KeyPair user1 = generator.generateKeyPair();
-        //
-        //            KeyPair user2 =s generator.generateKeyPair();
-        //
-        //            String text = "yo";
-        //
-        //            Cipher encryptCipher = Cipher.getInstance("RSA");
-        //            encryptCipher.init(Cipher.ENCRYPT_MODE, user2.getPublic());
-        //
-        //        }
-        //        catch (Exception e)
-        //        {
-        //
-        //        }
     }
 
     /*------------------------------------------------------------------*\
