@@ -10,6 +10,10 @@ import java.util.Date;
 @Entity
 public class MessageEntity
 {
+    /*------------------------------------------------------------------*\
+    |*							Public Attributes						*|
+    \*------------------------------------------------------------------*/
+
     @Id
     public long id;
 
@@ -31,6 +35,10 @@ public class MessageEntity
     @Unique(onConflict = ConflictStrategy.REPLACE)
     public String uniqueMessageID;
 
+    /*------------------------------------------------------------------*\
+    |*							Constructors							*|
+    \*------------------------------------------------------------------*/
+
     public MessageEntity(long id, User sender, User receiver, Message message, Date date, String uniqueMessageID)
     {
         this.id = id;
@@ -46,6 +54,10 @@ public class MessageEntity
     {
         this(0, sender, receiver, message, new Date(), "");
     }
+
+    /*------------------------------------------------------------------*\
+    |*					    	  Converters			    			*|
+    \*------------------------------------------------------------------*/
 
     public static class UserConverter implements PropertyConverter<User, String>
     {

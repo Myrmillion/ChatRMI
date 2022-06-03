@@ -24,7 +24,7 @@ public class JFrameChat extends JFrame
 
         if (mainJFrame == null)
         {
-            System.out.println("mainJFrame = his");
+            System.out.println("[JFrameChat] mainJFrame = his");
             mainJFrame = this;
         }
     }

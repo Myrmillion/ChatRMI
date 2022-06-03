@@ -27,10 +27,12 @@ public class JMain extends Box {
 	|*							Constructors							*|
 	\*------------------------------------------------------------------*/
 
-    public JMain()
-    {
-        this("Anon", "Ymous".toCharArray());
-    }
+//    Will remove in the next commit !!!
+//
+//    public JMain()
+//    {
+//        this("Anon", "Ymous".toCharArray());
+//    }
 
     public JMain(String username, char[] password)
     {

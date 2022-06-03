@@ -16,11 +16,7 @@ public class User implements Serializable
 
     public User(String username, RmiURL rmiURL)
     {
-        this(username, rmiURL, null); // Laoun qui a oublié les cours de Bilat :sad: :cry: :sob:
-
-        //        this.username = username;
-        //        this.rmiURL = rmiURL;
-        //        this.publicKey = null;
+        this(username, rmiURL, null);
     }
 
     public User(String username, RmiURL rmiURL, PublicKey publicKey)
@@ -52,10 +48,10 @@ public class User implements Serializable
         }
         else
         {
-            // return (this.rmiURL.toString().equals(obj2.rmiURL.toString())) && (this.username.equals(obj2.username));
+            return (this.rmiURL.toString().equals(obj2.rmiURL.toString())) && (this.username.equals(obj2.username));
 
-            //Pour tester (peut-être partie pour rester ? :thinking:)
-            return (this.username.equals(obj2.username));
+            // Will be removed next commit :
+            // return (this.username.equals(obj2.username));
         }
     }
 
@@ -75,6 +71,7 @@ public class User implements Serializable
     @Override
     public int hashCode()
     {
+        // this should (really) drastically improve performances
         return this.username.concat(this.rmiURL.toString()).hashCode();
     }
 
