@@ -17,7 +17,6 @@ public class PCRegistry
 
     public PCRegistry(RmiURL localURL)
     {
-        System.out.println(11);
         this.localURL = localURL;
 
         server();
@@ -37,10 +36,8 @@ public class PCRegistry
 
     private void server()
     {
-        System.out.println(0);
         this.registry = new Registry();
         shareRegistry();
-        System.out.println(1);
     }
 
     private void shareRegistry()
