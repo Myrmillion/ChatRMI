@@ -263,6 +263,9 @@ public class ChatController
     {
         // Get the MAC Address of this computer
         byte[] macAddress = SettingsRMI.getMacAddress();
+        if (macAddress == null) {
+            macAddress = new byte[0];
+        }
 
         // Generate public and private key for this user
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
